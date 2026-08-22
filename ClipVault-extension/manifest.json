@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "ClipVault Link Sender",
+  "version": "1.1",
+  "description": "Envia el video o playlist actual de YouTube a ClipVault con un clic.",
+  "action": {
+    "default_title": "Enviar a ClipVault",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "host_permissions": ["http://127.0.0.1:5000/*"],
+  "permissions": ["activeTab"]
+}

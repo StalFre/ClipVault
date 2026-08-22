@@ -1,0 +1,39 @@
+# Datos personales / configuracion local (NUNCA subir)
+settings.json
+settings-*.json
+profiles.json
+profiles-*.json
+history.json
+history-*.json
+downloads/
+logs/
+.downloaded_ids.json
+*.log
+
+# Binarios de terceros (pesados, no son tu codigo)
+ffmpeg.exe
+ffprobe.exe
+yt-dlp.exe
+
+# Carpetas generadas por PyInstaller / Inno Setup
+build/
+dist/
+installer_output/
+*.spec
+
+# Entorno virtual de Python
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# Archivos del sistema / editor
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Variables de entorno / secretos
+.env
+*.env

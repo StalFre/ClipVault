@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>ClipVault</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="toast" id="toastContainer"></div>
+<div class="wrap">
+  <header>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="ClipVault"
+           style="width:40px; height:40px; border-radius:10px; object-fit:cover;"
+           onerror="this.style.display='none';">
+      <div><h1>ClipVault</h1><div class="sub">Tu gestor personal de descargas de video y audio</div></div>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙 Modo oscuro</button>
+</header>
+  
+  <div id="banner"></div>
+  <nav class="tabs">
+  <button class="active" data-tab="search" onclick="switchTab('search')">Buscar</button>
+  <button data-tab="download" onclick="switchTab('download')">URL</button>
+  <button data-tab="downloads" onclick="switchTab('downloads')">Descargas</button>
+  <button data-tab="profiles" onclick="switchTab('profiles')">Perfiles</button>
+  <button data-tab="settings" onclick="switchTab('settings')">Configuracion</button>
+  </nav>
+
+<div class="tabcontent active" id="tab-search">
+  <div class="card">
+    <h3>Buscar en YouTube</h3>
+    <div class="desc">Escribe lo que buscas, sin necesidad de pegar ningun enlace.</div>
+    <div class="row">
+      <input id="searchQuery" type="text" class="grow" placeholder="Nombre de la cancion o video...">
+      <select id="searchMaxResults" style="width:130px;">
+        <option value="10">10 resultados</option>
+        <option value="15" selected>15 resultados</option>
+        <option value="25">25 resultados</option>
+        <option value="40">40 resultados</option>
+      </select>
+      <button class="btn primary" onclick="searchYoutube()">Buscar</button>
+    </div>
+  </div>
+    <div class="card">
+    <div class="row">
+      <div style="flex:1; min-width:220px;">
+        <div style="font-size:0.8rem; color:var(--sub);">Perfil activo</div>
+        <select id="activeProfileSelectSearch" class="grow" onchange="onProfileSelectChange('activeProfileSelectSearch')"></select>
+      </div>
+      <div style="flex:2; min-width:260px;">
+        <div style="font-size:0.8rem; color:var(--sub);">Carpeta de destino</div>
+        <div class="row">
+          <input id="destFolderSearch" type="text" class="grow" readonly>
+          <button class="btn" onclick="browseFolder()">Elegir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="searchResultsCard" style="display:none;">
+    <h3 id="searchResultsTitle">Resultados</h3>
+      <div class="row" style="margin-bottom:10px;">
+        <button class="btn" onclick="selectAllSearch(true)">Seleccionar todo</button>
+        <button class="btn" onclick="selectAllSearch(false)">Deseleccionar todo</button>
+        <button class="btn ghost" onclick="clearSearch()">🧹 Vaciar lista</button>
+        <button class="btn primary" style="margin-left:auto;" onclick="startSearchDownload()">Descargar seleccionados</button>
+      </div>
+    <div class="list" id="searchList"></div>
+  </div>
+</div>
+
+  <div class="tabcontent" id="tab-download">
+    <div class="card">
+      <h3>Descargar desde URL</h3>
+      <div class="desc">Elige el modo y pega el enlace correspondiente. Enter extrae, Ctrl+Enter descarga.</div>
+      <div class="mode-selector">
+        <div class="mode-card active" id="modeSingleCard" onclick="setMode('single')">
+          <div class="m-icon">🎬</div><div class="m-title">Un solo video</div>
+          <div class="m-desc">Descarga solo ese video, aunque el link sea de una playlist.</div>
+        </div>
+        <div class="mode-card" id="modePlaylistCard" onclick="setMode('playlist')">
+          <div class="m-icon">📋</div><div class="m-title">Playlist</div>
+          <div class="m-desc">Extrae todos los videos de la playlist para elegir cuales bajar.</div>
+        </div>
+        <div class="mode-card" id="modeBulkCard" onclick="setMode('bulk')">
+          <div class="m-icon">📥</div><div class="m-title">Varios enlaces</div>
+          <div class="m-desc">Pega o arrastra varias URLs a la vez, una por linea.</div>
+        </div>
+      </div>
+      <div id="singleInputRow" class="row">
+        <input id="url" type="text" class="grow" placeholder="https://...">
+        <button class="btn primary" onclick="extract()">Extraer</button>
+        <button class="btn ghost" onclick="clearAll()">🧹 Limpiar</button>
+      </div>
+      <div id="bulkInputRow" style="display:none;">
+        <textarea id="bulkUrls" class="grow" placeholder="https://...
+https://...
+https://..."></textarea>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn primary" onclick="extractBulk()">Extraer todos</button>
+          <button class="btn ghost" onclick="clearAll()">🧹 Limpiar</button>
+        </div>
+      </div>
+      <div style="margin-top:14px;" class="row">
+        <div style="flex:1; min-width:220px;">
+          <div style="font-size:0.8rem; color:var(--sub);">Perfil activo</div>
+          <select id="activeProfileSelect" class="grow" onchange="onProfileSelectChange('activeProfileSelect')"></select>
+        </div>
+        <div style="flex:2; min-width:260px;">
+          <div style="font-size:0.8rem; color:var(--sub);">Carpeta de destino</div>
+          <div class="row">
+            <input id="destFolder" type="text" class="grow" readonly>
+            <button class="btn" onclick="browseFolder()">📁 Elegir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="listCard" style="display:none;">
+      <h3 id="playlistTitle">Resultados</h3>
+      <div id="previewInfo"></div>
+      <div class="desc">Pasa el mouse sobre una miniatura para ver una vista previa en vivo del video.</div>
+      <div class="row" style="margin-bottom:10px;">
+        <button class="btn" onclick="selectAll(true)">Seleccionar todo</button>
+        <button class="btn" onclick="selectAll(false)">Deseleccionar todo</button>
+        <button class="btn ghost" onclick="removeUnselected()">✕ Quitar no seleccionadas</button>
+        <button class="btn ghost" onclick="clearList()">🧹 Limpiar lista</button>
+        <button class="btn primary" style="margin-left:auto;" onclick="startDownload()">⬇ Descargar seleccionados</button>
+      </div>
+      <div class="list" id="list"></div>
+      <div id="skippedSection">
+        <div class="skipped-header">
+          <h4>⚠ Videos con problemas (no se descargaran)</h4>
+          <button class="btn danger" onclick="clearSkipped()">🗑 Vaciar lista</button>
+        </div>
+        <div class="skipped-summary" id="skippedSummary"></div>
+        <div id="skippedListContainer"></div>
+      </div>
+    </div>
+    <div id="log"></div>
+  </div>
+
+  <div class="tabcontent" id="tab-downloads">
+    <div class="card">
+      <h3>Cola activa</h3>
+      <div class="desc">Arrastra del icono de puntos para reordenar libremente. Pausa, reanuda o cancela cualquier elemento.</div>
+      <div id="diskBanner"></div>
+      <div class="row" style="margin-bottom:10px; display:none;" id="clearQueueRow">
+        <button class="btn danger" style="margin-left:auto;" onclick="clearQueue()">🗑 Borrar cola activa</button>
+      </div>
+      <div id="queueList"></div>
+    </div>
+    <div class="card">
+      <h3>Historial</h3>
+      <div class="desc">Descargas completadas en sesiones anteriores y en esta.</div>
+      <div class="row" style="margin-bottom:10px;">
+        <input id="histSearch" type="text" class="grow" placeholder="Buscar por titulo...">
+        <select id="histStatusFilter">
+          <option value="">Todos los estados</option>
+          <option value="done">Completados</option>
+          <option value="failed">Fallidos</option>
+          <option value="failed (no recuperable)">Fallidos (no recuperable)</option>
+          <option value="cancelled">Cancelados</option>
+          <option value="skipped">Omitidos (duplicados)</option>
+        </select>
+        <button class="btn" onclick="loadHistory()">🔎 Buscar</button>
+        <button class="btn danger" style="margin-left:auto; display:none;" id="clearHistBtn" onclick="clearHistory()">🗑 Borrar historial</button>
+      </div>
+      <div id="histTableWrap"></div>
+    </div>
+  </div>
+
+  <div class="tabcontent" id="tab-profiles">
+    <div class="card">
+      <h3>Perfiles de calidad</h3>
+      <div class="desc">Elige el perfil activo, o crea/edita los tuyos.</div>
+      <div class="row" style="margin-bottom:14px;"><button class="btn primary" onclick="openProfileModal()">+ Nuevo perfil</button></div>
+      <div class="section-label">Video</div>
+      <div class="profiles-grid" id="profilesGridVideo"></div>
+      <div class="section-label">Audio</div>
+      <div class="profiles-grid" id="profilesGridAudio"></div>
+    </div>
+  </div>
+
+  <div class="tabcontent" id="tab-settings">
+    <div class="card">
+      <h3>Entrada y red</h3>
+      <div class="field"><label>Fuente de cookies</label>
+        <div class="pill-toggle" id="cookiesModeToggle">
+          <button data-val="off" class="active">Off</button><button data-val="file">Archivo</button><button data-val="browser">Navegador</button>
+        </div></div>
+      <div class="field" id="cookiesFileField" style="display:none;"><label>Ruta al archivo cookies.txt</label>
+        <input type="text" id="cookiesFile" class="grow"></div>
+      <div class="field" id="cookiesBrowserField" style="display:none;"><label>Navegador</label>
+        <select id="cookiesBrowser"><option value="chrome">Chrome</option><option value="firefox">Firefox</option><option value="edge">Edge</option><option value="brave">Brave</option></select></div>
+      <div class="field"><label>Proxy URL</label><input type="text" id="proxyUrl" class="grow" placeholder="http://host:puerto"></div>
+      <div class="field"><label>Maximo de elementos a escanear en una playlist</label><input type="number" id="playlistLimit" value="100" style="width:120px;"></div>
+    </div>
+    <div class="card">
+      <h3>Comportamiento de descarga</h3>
+      <div class="field"><label>Limite de velocidad de descarga</label>
+        <div class="pill-toggle" id="rateLimitToggle">
+          <button data-val="0" class="active">Sin limite</button>
+          <button data-val="500">500 KB/s</button>
+          <button data-val="1024">1 MB/s</button>
+          <button data-val="2048">2 MB/s</button>
+          <button data-val="5120">5 MB/s</button>
+        </div>
+      </div>
+      <div class="field"><label>Descargas simultaneas</label>
+        <div class="pill-toggle" id="concurrencyToggle">
+          <button data-val="1">1</button><button data-val="2" class="active">2</button><button data-val="3">3</button><button data-val="4">4</button>
+        </div></div>
+      <div class="field"><label>Que tan cauteloso debe ser? (pausas entre descargas)</label>
+        <div class="pill-toggle" id="cautiousToggle">
+          <button data-val="off">Off</button><button data-val="balanced" class="active">Balanced</button><button data-val="careful">Careful</button>
+        </div></div>
+      <div class="field"><label>Ruta de ffmpeg (dejalo vacio si ya esta en el PATH)</label>
+        <input type="text" id="ffmpegLocation" class="grow"></div>
+      <div class="field">
+        <label>Notificaciones de escritorio al terminar una descarga completa</label>
+        <div class="pill-toggle" id="notifToggle">
+          <button data-val="on" class="active">Activadas</button><button data-val="off">Desactivadas</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Funciones avanzadas</h3>
+      <div class="field">
+        <label>Quitar patrocinios/intros automaticamente (SponsorBlock)</label>
+        <div class="row" style="gap:8px;">
+          <button class="btn" id="sponsorBtn" onclick="toggleSponsor()">🚫 Sin patrocinios (off)</button>
+          <span style="font-size:0.8rem; color:var(--sub);">Activa para saltar intros, patrocinios y outros automaticamente.</span>
+        </div>
+      <div class="field">
+        <label>Normalizar volumen entre canciones (loudnorm, EBU R128)</label>
+        <div class="pill-toggle" id="normalizeToggle">
+          <button data-val="off" class="active">Off</button><button data-val="on">Activado</button>
+        </div>
+      </div>
+      </div>
+      <div class="field">
+        <label>Embeber miniatura y metadatos en el archivo final</label>
+        <div class="pill-toggle" id="embedToggle">
+          <button data-val="off" class="active">Off</button><button data-val="on">Activado</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Descargar subtitulos/letras si estan disponibles (se guardan como .srt junto al archivo)</label>
+        <div class="pill-toggle" id="subsToggle">
+          <button data-val="off" class="active">Off</button><button data-val="on">Activado</button>
+        </div>
+      </div>
+      <div class="field" id="subsLangsField" style="display:none;">
+        <label>Idioma de subtitulos (el que este disponible)</label>
+        <select id="subtitleLangs" style="max-width:200px;">
+          <option value="es">Espanol</option>
+          <option value="en">Ingles</option>
+          <option value="es,en">Espanol o Ingles (preferir espanol)</option>
+          <option value="en,es">Ingles o Espanol (preferir ingles)</option>
+          <option value="pt">Portugues</option>
+          <option value="fr">Frances</option>
+          <option value="de">Aleman</option>
+          <option value="it">Italiano</option>
+          <option value="ja">Japones</option>
+          <option value="ko">Coreano</option>
+          <option value="zh">Chino</option>
+        </select>
+      </div>
+    </div>
+    <div class="card">
+      <h3>yt-dlp</h3>
+      <div class="row" style="justify-content:space-between;">
+        <div><div style="font-size:0.85rem; color:var(--sub);">Version instalada</div><div id="ytdlpVersion" style="font-weight:700;">-</div></div>
+        <button class="btn primary" onclick="updateYtdlp()" id="updateBtn">⟳ Actualizar yt-dlp</button>
+      </div>
+      <div id="updateLog" style="font-size:0.76rem; color:var(--sub); white-space:pre-wrap; max-height:120px; overflow-y:auto; margin-top:10px;"></div>
+    </div>
+        <div class="card">
+      <h3>Acerca de</h3>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="ClipVault"
+     style="width:48px; height:48px; border-radius:12px; object-fit:cover;"
+     onerror="this.outerHTML='<div style=&quot;width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;color:#fff;&quot;>CV</div>';">
+        <div>
+          <div style="font-weight:700; font-size:1rem;">ClipVault</div>
+          <div style="font-size:0.8rem; color:var(--sub);">Version 1.0.0</div>
+        </div>
+      </div>
+      <div style="margin-top:14px; font-size:0.85rem; color:var(--sub); line-height:1.6;">
+        Interfaz personal para descargar video y audio con yt-dlp.<br>
+        Elaborado por <strong style="color:var(--txt);">StalFre</strong>.<br>
+        Construido con Python, Flask, yt-dlp y pywebview.
+      </div>
+    </div>
+    <div class="row" style="justify-content:flex-end;"><button class="btn primary" onclick="saveSettings()">Guardar configuracion</button></div>
+  </div>
+</div>
+
+<div class="preview-pop" id="previewPop"><div id="previewPopInner"></div></div>
+
+<div class="modal-backdrop" id="profileModal">
+  <div class="modal">
+    <h3 id="modalTitle">Nuevo perfil</h3>
+    <div class="field"><label>Nombre</label><input type="text" id="pfName" class="grow"></div>
+    <div class="field"><label>Tipo</label>
+      <div class="pill-toggle" id="pfKindToggle"><button data-val="video" class="active">Video</button><button data-val="audio">Audio</button></div></div>
+    <div class="field" id="pfHeightField"><label>Altura maxima (px, vacio = mejor disponible)</label><input type="number" id="pfHeight" style="width:100%;"></div>
+    <div class="field" id="pfContainerField"><label>Contenedor de video</label>
+      <select id="pfContainer"><option value="native">Nativo</option><option value="mp4">MP4/H.264 (Smart TV)</option></select></div>
+    <div class="field" id="pfAudioCodecField" style="display:none;"><label>Formato de audio</label>
+      <select id="pfAudioCodec">
+        <option value="mp3">MP3 (maxima compatibilidad)</option>
+        <option value="m4a">M4A / AAC (iPhone, iTunes)</option>
+        <option value="wav">WAV (sin perdida, pesado)</option>
+        <option value="flac">FLAC (sin perdida, comprimido)</option>
+        <option value="opus">Opus original (sin recodificar)</option>
+      </select></div>
+    <div class="row" style="justify-content:flex-end; margin-top:10px;">
+      <button class="btn" onclick="closeProfileModal()">Cancelar</button><button class="btn primary" onclick="saveProfile()">Guardar</button>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop" id="extensionLinkModal">
+  <div class="modal" style="width:400px;">
+    <h3>🔗 Enlace recibido</h3>
+    <div class="desc">Se recibio este enlace desde la extension de Chrome. ¿Como quieres descargarlo?</div>
+    <div style="font-size:0.82rem; color:var(--sub); background:rgba(0,0,0,0.15); border-radius:8px; padding:10px; margin-bottom:16px; word-break:break-all;" id="extensionLinkText"></div>
+    <div class="row" style="justify-content:flex-end; gap:8px;">
+      <button class="btn" onclick="closeExtensionLinkModal()">Cancelar</button>
+      <button class="btn ghost" onclick="handleExtensionLinkChoice('playlist')">📋 Playlist</button>
+      <button class="btn primary" onclick="handleExtensionLinkChoice('single')">🎬 Un solo video</button>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop" id="ffmpegModal">
+  <div class="modal" style="width:440px;">
+    <h3>ffmpeg no encontrado</h3>
+    <div style="font-size:0.85rem; color:var(--sub); line-height:1.6; margin-bottom:16px;">
+      ClipVault necesita ffmpeg para unir video+audio y convertir a MP3.
+      No lo detectamos en esta PC.
+    </div>
+    <div class="row" style="justify-content:flex-end; margin-bottom:10px;">
+      <button class="btn" onclick="closeFfmpegModal()">Cerrar / Recordar despues</button>
+      <button class="btn ghost" onclick="downloadFfmpeg()">Descargar manualmente</button>
+      <button class="btn primary" id="installFfmpegBtn" onclick="installFfmpegWinget()">Instalar con Winget</button>
+    </div>
+    <div id="ffmpegInstallLog" style="font-size:0.76rem; color:var(--sub); white-space:pre-wrap; max-height:140px; overflow-y:auto; background:rgba(0,0,0,0.15); border-radius:8px; padding:10px; display:none;"></div>
+  </div>
+</div>
+</div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { width: 260px; font-family: 'Segoe UI', sans-serif; padding: 14px; background:#141a2e; color:#eef0f5; margin:0; }
+  h3 { margin:0 0 8px; font-size:0.95rem; }
+  .title { font-size:0.8rem; color:#9aa3b8; margin-bottom:12px; word-break:break-word; max-height:60px; overflow:hidden; }
+  button { width:100%; padding:10px; border:none; border-radius:8px; background:linear-gradient(135deg,#7c6cf6,#4f8cff); color:#fff; font-weight:600; cursor:pointer; font-size:0.85rem; }
+  button:disabled { opacity:0.5; cursor:not-allowed; }
+  #status { margin-top:10px; font-size:0.78rem; text-align:center; min-height:16px; }
+  #status.ok { color:#3ecf8e; }
+  #status.err { color:#ff5b6a; }
+</style>
+</head>
+<body>
+  <h3>🎬 ClipVault</h3>
+  <div class="title" id="pageTitle">Detectando pagina...</div>
+  <button id="sendBtn" disabled>Enviar a ClipVault</button>
+  <div id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

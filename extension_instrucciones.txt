@@ -1,0 +1,16 @@
+Un ultimo paso importante: instalar la extension del navegador
+================================================================
+
+Para que ClipVault funcione correctamente con tu navegador, necesitas
+cargar la extension manualmente (solo una vez):
+
+1. Abre Google Chrome (o Edge/Brave, basados en Chromium).
+2. Ve a la barra de direcciones y escribe: chrome://extensions
+3. Activa el "Modo de desarrollador" (interruptor arriba a la derecha).
+4. Haz clic en "Cargar extension sin empaquetar" (Load unpacked).
+5. Selecciona la carpeta "ClipVault-extension" que se encuentra dentro
+   de la carpeta donde instalaste ClipVault
+   (por defecto: C:\Program Files\ClipVault\ClipVault-extension).
+6. Listo. El icono de ClipVault deberia aparecer en la barra de extensiones.
+
+Si no completas este paso, ClipVault no podra comunicarse con tu navegador.
