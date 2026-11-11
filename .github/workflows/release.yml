@@ -1,0 +1,41 @@
+name: Release
+
+# Al subir una etiqueta v* (ej. v2.0.1) compila los instaladores y los publica en GitHub Releases.
+# La app instalada comprueba esa release para ofrecer la actualizacion.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Comprobar que la etiqueta coincide con Cargo.toml
+        shell: pwsh
+        run: |
+          $ver = (Select-String -Path Cargo.toml -Pattern '^version = "(.+)"').Matches[0].Groups[1].Value
+          if ("v$ver" -ne "${{ github.ref_name }}") { throw "La etiqueta ${{ github.ref_name }} no coincide con la version $ver de Cargo.toml" }
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Instalar Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Compilar instaladores
+        shell: pwsh
+        run: ./build_installer.ps1
+
+      - name: Publicar release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/ClipVault-Setup-*-Admin.exe
+            dist/ClipVault-Setup-*-User.exe
+            dist/ClipVault-extension-*.zip
+          generate_release_notes: true

@@ -1,0 +1,268 @@
+import { M3, Ic } from "theme.slint";
+
+export component Icon inherits Rectangle {
+    in property <string> d;
+    in property <color> tint: M3.on-surface-variant;
+    in property <length> size: 24px;
+    width: size;
+    height: size;
+    background: transparent;
+    Path {
+        width: root.size;
+        height: root.size;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        viewbox-width: 24;
+        viewbox-height: 24;
+        commands: root.d;
+        fill: root.tint;
+    }
+}
+
+export component IconBtn inherits Rectangle {
+    in property <string> icon;
+    in property <color> tint: M3.on-surface-variant;
+    in property <bool> is-enabled: true;
+    in property <length> size: 40px;
+    callback clicked;
+    width: size;
+    height: size;
+    border-radius: size / 2;
+    background: transparent;
+    ta := TouchArea {
+        enabled: root.is-enabled;
+        mouse-cursor: root.is-enabled ? MouseCursor.pointer : MouseCursor.default;
+        clicked => {
+            root.clicked();
+        }
+    }
+    Rectangle {
+        border-radius: parent.border-radius;
+        background: !root.is-enabled ? transparent : ta.pressed ? root.tint.with-alpha(0.16) : ta.has-hover ? root.tint.with-alpha(0.08) : transparent;
+        animate background { duration: 120ms; }
+    }
+    Icon {
+        d: root.icon;
+        tint: root.is-enabled ? root.tint : M3.on-surface.with-alpha(0.55);
+        size: 24px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+    }
+}
+
+// variant: "filled" | "tonal" | "outlined" | "text" | "danger"
+export component M3Button inherits Rectangle {
+    in property <string> text;
+    in property <string> icon;
+    in property <string> variant: "filled";
+    in property <bool> is-enabled: true;
+    callback clicked;
+    height: 40px;
+    border-radius: 20px;
+    min-width: lay.min-width;
+    preferred-width: lay.preferred-width;
+    property <color> fg: !is-enabled ? M3.on-surface.with-alpha(0.55)
+        : variant == "filled" ? M3.on-primary
+        : variant == "tonal" ? M3.on-secondary-container
+        : variant == "danger" ? M3.on-error-container
+        : M3.primary;
+    background: !is-enabled ? (variant == "text" || variant == "outlined" ? transparent : M3.on-surface.with-alpha(0.12))
+        : variant == "filled" ? M3.primary
+        : variant == "tonal" ? M3.secondary-container
+        : variant == "danger" ? M3.error-container
+        : transparent;
+    border-width: variant == "outlined" ? 1px : 0px;
+    border-color: is-enabled ? M3.outline : M3.on-surface.with-alpha(0.12);
+    ta := TouchArea {
+        enabled: root.is-enabled;
+        mouse-cursor: root.is-enabled ? MouseCursor.pointer : MouseCursor.default;
+        clicked => {
+            root.clicked();
+        }
+    }
+    Rectangle {
+        border-radius: parent.border-radius;
+        background: !root.is-enabled ? transparent : ta.pressed ? root.fg.with-alpha(0.16) : ta.has-hover ? root.fg.with-alpha(0.08) : transparent;
+        animate background { duration: 120ms; }
+    }
+    lay := HorizontalLayout {
+        padding-left: root.icon != "" ? 16px : (root.variant == "text" ? 12px : 24px);
+        padding-right: root.variant == "text" ? 12px : 24px;
+        spacing: 8px;
+        alignment: center;
+        if root.icon != "": Icon {
+            d: root.icon;
+            tint: root.fg;
+            size: 18px;
+            height: 40px;
+        }
+        Text {
+            text: root.text;
+            color: root.fg;
+            font-size: 14px;
+            font-weight: 500;
+            vertical-alignment: center;
+        }
+    }
+}
+
+export component Segmented inherits Rectangle {
+    in property <[string]> options;
+    in-out property <int> current: 0;
+    callback selected(int);
+    height: 40px;
+    border-radius: 20px;
+    border-width: 1px;
+    border-color: M3.outline;
+    clip: true;
+    HorizontalLayout {
+        for opt[i] in root.options: Rectangle {
+            background: i == root.current ? M3.secondary-container : (t.has-hover ? M3.on-surface.with-alpha(0.08) : transparent);
+            animate background { duration: 120ms; }
+            t := TouchArea {
+                mouse-cursor: MouseCursor.pointer;
+                clicked => {
+                    root.current = i;
+                    root.selected(i);
+                }
+            }
+            HorizontalLayout {
+                padding-left: 16px;
+                padding-right: 16px;
+                spacing: 6px;
+                alignment: center;
+                if i == root.current: Icon {
+                    d: Ic.check;
+                    tint: M3.on-secondary-container;
+                    size: 18px;
+                    height: 40px;
+                }
+                Text {
+                    text: opt;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: i == root.current ? M3.on-secondary-container : M3.on-surface;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}
+
+export component Check inherits Rectangle {
+    in property <bool> checked;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    border-width: checked ? 0px : 2px;
+    border-color: M3.on-surface-variant;
+    background: checked ? M3.primary : transparent;
+    if root.checked: Icon {
+        d: Ic.check;
+        tint: M3.on-primary;
+        size: 18px;
+        x: 2px;
+        y: 2px;
+    }
+}
+
+export component Thumb inherits Rectangle {
+    in property <image> src;
+    in property <bool> has;
+    in property <string> fallback: Ic.movie;
+    border-radius: 10px;
+    clip: true;
+    background: M3.surface-highest;
+    if root.has: Image {
+        source: root.src;
+        image-fit: ImageFit.cover;
+        width: parent.width;
+        height: parent.height;
+    }
+    if !root.has: Icon {
+        d: root.fallback;
+        tint: M3.outline;
+        size: 28px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+    }
+}
+
+export component EmptyState inherits Rectangle {
+    in property <string> icon: Ic.download;
+    in property <string> title;
+    in property <string> subtitle;
+    VerticalLayout {
+        alignment: center;
+        spacing: 8px;
+        Rectangle {
+            height: 48px;
+            Icon {
+                d: root.icon;
+                tint: M3.outline;
+                size: 48px;
+                x: (parent.width - self.width) / 2;
+            }
+        }
+        Text {
+            text: root.title;
+            font-size: 16px;
+            font-weight: 500;
+            color: M3.on-surface;
+            horizontal-alignment: center;
+        }
+        Text {
+            text: root.subtitle;
+            font-size: 13px;
+            color: M3.on-surface-variant;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+    }
+}
+
+export component Card inherits Rectangle {
+    background: M3.surface-container;
+    border-radius: 24px;
+    border-width: 1px;
+    border-color: M3.outline-variant.with-alpha(0.45);
+}
+
+export component SettingRow inherits Rectangle {
+    in property <string> title;
+    in property <string> subtitle;
+    min-height: 56px;
+    HorizontalLayout {
+        padding-left: 4px;
+        padding-right: 4px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        spacing: 16px;
+        VerticalLayout {
+            alignment: center;
+            horizontal-stretch: 1;
+            spacing: 2px;
+            Text {
+                text: root.title;
+                font-size: 15px;
+                color: M3.on-surface;
+            }
+            if root.subtitle != "": Text {
+                text: root.subtitle;
+                font-size: 12px;
+                color: M3.on-surface-variant;
+                wrap: word-wrap;
+            }
+        }
+        HorizontalLayout {
+            alignment: end;
+            @children
+        }
+    }
+}
+
+export component SectionTitle inherits Text {
+    font-size: 14px;
+    font-weight: 600;
+    color: M3.primary;
+}

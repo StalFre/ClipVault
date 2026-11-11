@@ -1,0 +1,266 @@
+// Tokens Material 3 (esquema base) + estado compartido con Rust.
+
+export struct VideoRow {
+    title: string,
+    meta: string,
+    thumb: image,
+    has-thumb: bool,
+    selected: bool,
+}
+
+export struct QueueRow {
+    id: int,
+    title: string,
+    status: string,
+    detail: string,
+    pct: float,
+    thumb: image,
+    has-thumb: bool,
+    paused: bool,
+    busy: bool,
+    can-pause: bool,
+    can-up: bool,
+    can-down: bool,
+}
+
+export struct HistoryRow {
+    id: string,
+    title: string,
+    meta: string,
+    error: string,
+    can-edit: bool,
+    // 0 = completado, 1 = fallido, 2 = omitido
+    kind: int,
+    thumb: image,
+    has-thumb: bool,
+}
+
+export struct ProfileRow {
+    id: string,
+    name: string,
+    desc: string,
+    audio: bool,
+    builtin: bool,
+    active: bool,
+}
+
+export global Backend {
+    in-out property <int> page: 0;
+    in-out property <bool> dark: true;
+
+    // Buscar
+    in-out property <string> search-query;
+    in-out property <int> search-count-idx: 1;
+    in property <bool> search-busy;
+    in property <string> search-error;
+    in property <[VideoRow]> search-rows;
+    in property <int> search-selected;
+
+    // URL
+    in-out property <string> url-text;
+    in-out property <string> bulk-text;
+    in-out property <int> url-mode: 0;
+    in property <bool> url-busy;
+    in property <string> url-error;
+    in property <string> url-title;
+    in property <[VideoRow]> url-rows;
+    in property <int> url-selected;
+    in property <string> skipped-summary;
+
+    // Perfil y carpeta de destino
+    in property <[string]> profile-names;
+    in-out property <int> profile-index: 0;
+    in property <string> profile-desc;
+    in property <string> dest-dir;
+
+    // Descargas
+    in property <[QueueRow]> queue-rows;
+    in property <[HistoryRow]> history-rows;
+    in property <int> history-total;
+    in-out property <string> hist-query;
+    in-out property <int> hist-filter: 0;
+
+    // Perfiles
+    in property <[ProfileRow]> profile-rows;
+
+    // Ajustes
+    in-out property <int> cookies-mode: 0;
+    in-out property <string> cookies-file;
+    in-out property <int> cookies-browser-idx: 0;
+    in-out property <string> proxy-url;
+    in-out property <int> playlist-limit: 300;
+    in-out property <int> rate-idx: 0;
+    in-out property <int> conc-idx: 1;
+    in-out property <int> cautious-idx: 1;
+    in-out property <bool> sponsorblock;
+    in-out property <bool> normalize;
+    in-out property <bool> embed;
+    in-out property <bool> subs;
+    in-out property <int> subs-lang-idx: 2;
+    in-out property <bool> auto-update: true;
+
+    // Herramientas
+    in property <string> ytdlp-version;
+    in property <string> ffmpeg-version;
+    in property <string> tools-status;
+    in property <bool> tools-busy;
+    in property <float> tools-progress;
+
+    // General / organizacion
+    in-out property <bool> clipboard-watch: true;
+    in-out property <bool> close-to-tray: true;
+    in-out property <bool> notifications: true;
+    in-out property <int> folder-idx: 0;
+    in-out property <string> name-template: "{title}";
+    in-out property <int> lang-idx: 0;
+    in-out property <bool> compact-pref: false;
+    in-out property <bool> narrow: false;
+
+    // Recorte
+    in-out property <string> range-from;
+    in-out property <string> range-to;
+
+    // Editor de etiquetas
+    in-out property <bool> tag-dialog: false;
+    in-out property <string> tag-title;
+    in-out property <string> tag-artist;
+    in-out property <string> tag-album;
+    in property <string> tag-cover;
+    in property <bool> tag-busy;
+
+    in property <string> ext-title;
+
+    // Actualizacion de la app
+    in property <string> app-version;
+    in property <string> app-update-status;
+    in property <bool> app-update-available;
+    in property <bool> app-update-busy;
+
+    // Recorte por video
+    in-out property <bool> trim-dialog: false;
+    in property <string> trim-title;
+    in property <string> trim-duration;
+    in property <image> trim-thumb;
+    in property <bool> trim-has-thumb;
+    in-out property <string> trim-from;
+    in-out property <string> trim-to;
+
+    // Avisos y dialogos
+    in property <string> toast-text;
+    in property <bool> toast-visible;
+    in-out property <bool> ext-dialog;
+    in property <string> ext-url;
+    in-out property <bool> profile-dialog;
+
+    callback search();
+    callback extract-url();
+    callback toggle-select(int, int);
+    callback select-all(int, bool);
+    callback clear-list(int);
+    callback remove-unselected(int);
+    callback download(int);
+
+    callback pause(int);
+    callback resume(int);
+    callback cancel(int);
+    callback drag-move(int, float);
+    callback open-queue-folder(int);
+    callback clear-queue();
+
+    callback retry(string);
+    callback open-folder(string);
+    callback clear-history();
+    callback history-changed();
+
+    callback choose-folder();
+    callback profile-changed();
+    callback profile-activate(string);
+    callback profile-delete(string);
+    callback profile-create(string, int, int, int, int);
+
+    callback settings-changed();
+    callback check-tools();
+    callback browse-cookies();
+    callback open-logs();
+    callback ext-choice(int);
+    callback toggle-dark();
+    callback check-app-update();
+    callback install-app-update();
+    callback preview(int, int, bool);
+    callback trim-open(int, int);
+    callback trim-apply();
+    callback trim-clear();
+    callback trim-preview(bool);
+    callback trim-frame(bool);
+    callback url-mode-changed();
+    callback edit-tags(string);
+    callback tag-pick-cover();
+    callback tag-save();
+}
+
+export global Lay {
+    out property <bool> compact: Backend.compact-pref || Backend.narrow;
+    out property <length> pad: compact ? 16px : 32px;
+    out property <length> nav: compact ? 72px : 96px;
+}
+
+export global M3 {
+    out property <bool> dark: Backend.dark;
+
+    out property <color> primary: dark ? #9ECAFF : #0061A4;
+    out property <color> on-primary: dark ? #003258 : #FFFFFF;
+    out property <color> primary-container: dark ? #00497D : #D1E4FF;
+    out property <color> on-primary-container: dark ? #D1E4FF : #001D36;
+    out property <color> secondary-container: dark ? #3B4858 : #D7E3F8;
+    out property <color> on-secondary-container: dark ? #D7E3F8 : #101C2B;
+    out property <color> surface: dark ? #101418 : #F8F9FF;
+    out property <color> surface-low: dark ? #181C20 : #F2F3F9;
+    out property <color> surface-container: dark ? #1C2024 : #ECEEF4;
+    out property <color> surface-high: dark ? #262A2F : #E6E8EE;
+    out property <color> surface-highest: dark ? #31353A : #E0E2E8;
+    out property <color> on-surface: dark ? #E0E2E8 : #191C20;
+    out property <color> on-surface-variant: dark ? #C3C7CF : #43474E;
+    out property <color> outline: dark ? #8D9199 : #73777F;
+    out property <color> outline-variant: dark ? #43474E : #C3C7CF;
+    out property <color> error: dark ? #FFB4AB : #BA1A1A;
+    out property <color> error-container: dark ? #93000A : #FFDAD6;
+    out property <color> on-error-container: dark ? #FFDAD6 : #410002;
+    out property <color> success: dark ? #7DDB9A : #1B7F3B;
+    out property <color> inverse-surface: dark ? #E0E2E8 : #2E3135;
+    out property <color> inverse-on-surface: dark ? #2E3135 : #EFF0F7;
+    out property <color> scrim: #000000;
+}
+
+// Iconos Material (viewbox 24x24)
+export global Ic {
+    out property <string> search: "M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z";
+    out property <string> close: "M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z";
+    out property <string> download: "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z";
+    out property <string> delete: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z";
+    out property <string> pause: "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
+    out property <string> play: "M8 5v14l11-7z";
+    out property <string> refresh: "M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z";
+    out property <string> folder: "M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z";
+    out property <string> history: "M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z";
+    out property <string> settings: "M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z";
+    out property <string> arrow-up: "M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z";
+    out property <string> arrow-down: "M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z";
+    out property <string> check-circle: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z";
+    out property <string> error: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z";
+    out property <string> dark-mode: "M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z";
+    out property <string> light-mode: "M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 0 0 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z";
+    out property <string> add: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z";
+    out property <string> link: "M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z";
+    out property <string> movie: "M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z";
+    out property <string> audio: "M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z";
+    out property <string> check: "M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z";
+    out property <string> edit: "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z";
+    out property <string> list: "M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z";
+    out property <string> warning: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z";
+    out property <string> sync: "M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 0 0 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z";
+    out property <string> grip: "M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z";
+    out property <string> chevron: "M7 10l5 5 5-5z";
+    out property <string> minus: "M19 13H5v-2h14v2z";
+    out property <string> cut: "M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64zM6 8c-1.1 0-2-.89-2-2s.9-2 2-2 2 .89 2 2-.9 2-2 2zm0 12c-1.1 0-2-.89-2-2s.9-2 2-2 2 .89 2 2-.9 2-2 2zm6-7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zM19 3l-6 6 2 2 7-7V3z";
+    out property <string> image: "M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z";
+}

@@ -1,139 +1,58 @@
 # ClipVault
 
-Gestor personal de descargas de video y audio, construido sobre [yt-dlp](https://github.com/yt-dlp/yt-dlp).
+Gestor de descargas de video y audio sobre [yt-dlp](https://github.com/yt-dlp/yt-dlp), escrito en **Rust + Slint**: interfaz nativa Material 3, sin Electron ni navegador embebido.
 
-**Versión 1.0.0**
+## Instalar
 
-## Qué es ClipVault
+Descarga el instalador desde [Releases](https://github.com/StalFre/ClipVault/releases/latest):
 
-ClipVault es una interfaz de escritorio propia sobre yt-dlp: extrae videos individuales, playlists completas o múltiples enlaces sueltos, permite elegir perfiles de calidad de video o audio, gestiona una cola de descargas con pausa/reanudar/cancelar y reordenamiento por arrastre, guarda un historial consultable, y corre como una ventana de escritorio nativa (no requiere abrir el navegador).
-
-## Estructura del proyecto
-
-```
-ClipVault/
-├── main.py                  # Punto de entrada: arma la app Flask y abre la ventana
-├── core/                    # Configuración, logging, utilidades, historial, taskbar
-├── downloader/               # Lógica de yt-dlp: opciones, extractor, cola de descargas
-├── routes/                   # Endpoints Flask (extract, queue, profiles, settings, history...)
-├── static/                   # CSS, JS, íconos
-├── templates/                 # HTML
-├── ClipVault-extension/       # Extensión de navegador complementaria
-├── build.bat                 # Compila el .exe con PyInstaller
-├── installer_admin.iss        # Instalador Inno Setup (Program Files, requiere admin)
-└── installer_noadmin.iss      # Instalador Inno Setup (AppData, sin admin)
-```
-
-## Requisitos
-
-- **Python 3.9 o superior** (solo si corres desde el código fuente; el `.exe` empaquetado no lo necesita).
-- **ffmpeg y ffprobe** — ver sección de [binarios de terceros](#binarios-de-terceros-no-incluidos) más abajo.
-- **yt-dlp.exe** (opcional, solo si usas el binario standalone en vez de la librería de Python) — ver misma sección.
-- **Windows 10/11** (la detección automática de ffmpeg vía WinGet y las rutas del taskbar están pensadas para Windows).
-
-## Binarios de terceros (NO incluidos en este repositorio)
-
-Este repositorio **no incluye** `ffmpeg.exe`, `ffprobe.exe` ni `yt-dlp.exe` porque son binarios pesados de terceros con licencias propias, no código de ClipVault. Debes descargarlos aparte y colocarlos en la **raíz del proyecto** (junto a `main.py`), con esos nombres exactos, antes de correr `build.bat`:
-
-| Binario | De dónde descargarlo |
+| Archivo | Dónde se instala |
 |---|---|
-| `ffmpeg.exe` / `ffprobe.exe` | [gyan.dev/ffmpeg/builds](https://www.gyan.dev/ffmpeg/builds/) (build "full" o "essentials"), o `winget install Gyan.FFmpeg` |
-| `yt-dlp.exe` | [github.com/yt-dlp/yt-dlp/releases](https://github.com/yt-dlp/yt-dlp/releases) (archivo `yt-dlp.exe`) |
+| `ClipVault-Setup-X.Y.Z-Admin.exe` | `C:\Program Files\ClipVault` (todos los usuarios, pide permisos de administrador) |
+| `ClipVault-Setup-X.Y.Z-User.exe` | `%LOCALAPPDATA%\Programs\ClipVault` (solo tu usuario, sin administrador) |
 
-Si ya tienes ffmpeg instalado vía WinGet en tu PC de desarrollo, ClipVault lo detecta automáticamente sin que hagas nada (`core/config.py` busca en `%LOCALAPPDATA%\Microsoft\WinGet\Packages\Gyan.FFmpeg*`). Para **distribuir** la app a otros usuarios, sin embargo, siempre copia los binarios sueltos junto al `.exe` (ver sección de empaquetado), porque no puedes asumir que el usuario final tiene WinGet configurado igual que tú.
+El instalador está en español e inglés y, si lo dejas marcado, te guía para activar la **extensión del navegador**.
+yt-dlp y ffmpeg se descargan y actualizan solos al abrir la app (en `%LOCALAPPDATA%\ClipVault\bin`).
 
-## Instalación (desde código fuente)
+## Actualizaciones
 
-```bash
-pip install -r requirements.txt
+ClipVault consulta esta página de Releases al iniciar. Si hay una versión nueva, aparece un aviso y en **Ajustes → Acerca de → Instalar** se descarga y se instala sola (respeta la variante Admin o User que tengas).
+
+## Funciones
+
+- Búsqueda en YouTube, enlaces sueltos, listas de reproducción y varios enlaces; los resultados se acumulan por pestaña.
+- Cola con pausa, reanudar, cancelar y reordenar arrastrando; historial con reintento.
+- Perfiles de video y audio (MP3, M4A, WAV, FLAC, Opus), perfiles propios.
+- Recorte por video (con fotogramas de inicio y final), vista previa de 10 s, editor de etiquetas y portada para audio.
+- Carpetas por perfil, canal o lista, y plantillas de nombre (`{title} {channel} {id} {profile} {date}`).
+- Bandeja del sistema, notificaciones de Windows, progreso en la barra de tareas, detección del portapapeles y arrastrar y soltar enlaces.
+- Español / English y modo compacto.
+- Extensión de Chrome/Brave/Edge (`ClipVault-extension/`) que ofrece descargar cada video de YouTube cuando la app está abierta.
+
+## Compilar desde el código
+
+Requisitos: Rust (MSVC) y Visual Studio Build Tools con C++.
+
+```
+cargo run --release
 ```
 
-Dependencias incluidas: Flask, Flask-SocketIO, yt-dlp (librería), plyer (notificaciones de escritorio), pywebview (ventana nativa), pywin32 (integración con la barra de tareas de Windows).
+Instaladores (requiere [Inno Setup 6](https://jrsoftware.org/isinfo.php)):
 
-## Uso en desarrollo
-
-```bash
-python main.py
+```
+./build_installer.ps1
 ```
 
-Se abre automáticamente una ventana de escritorio con ClipVault (no un navegador).
+Genera `dist/ClipVault-Setup-X.Y.Z-Admin.exe`, `-User.exe` y el zip de la extensión.
 
-### Flujo básico
+## Publicar una versión nueva
 
-1. En la pestaña "URL", elige el modo: Un solo video, Playlist, o Varios enlaces.
-2. Pega el enlace (o varios, uno por línea en modo Varios enlaces) y pulsa Extraer.
-3. Los videos válidos aparecen en la lista principal con checkbox; los videos privados, eliminados o con error aparecen en una lista separada de "Videos con problemas".
-4. Elige el perfil de calidad activo y la carpeta de destino.
-5. Pulsa Descargar seleccionados. La pestaña Descargas muestra la cola en tiempo real con miniaturas, barra de progreso y controles de pausar/cancelar/reordenar.
-6. El Historial guarda cada descarga finalizada, con búsqueda, filtro por estado, botón de reintentar y botón para abrir la carpeta de destino.
+1. Sube la versión en `Cargo.toml` (`version = "X.Y.Z"`) y haz commit.
+2. `git tag vX.Y.Z && git push origin vX.Y.Z`
+3. GitHub Actions compila los instaladores y crea la release; las apps instaladas la detectan solas.
 
-## Perfiles de calidad
+## Datos y registros
 
-Pestaña Perfiles: perfiles de video predefinidos (Best available, 4K, 1440p, 1080p, 720p, 480p, y variantes Smart TV en MP4/H.264), y perfiles de audio (MP3, M4A/AAC, WAV, FLAC, Opus original). Se pueden editar, resetear a sus valores originales, o crear perfiles personalizados nuevos.
+`%LOCALAPPDATA%\ClipVault`: `settings.json`, `profiles.json`, `history.json` y `logs\clipvault.log` (rotativo, 1 MB × 5).
 
-## Funciones avanzadas (pestaña Configuración)
-
-- **SponsorBlock**: salta automáticamente intros, patrocinios y outros.
-- **Embeber miniatura y metadatos**: incrusta la carátula y la info del video en el archivo final.
-- **Subtítulos/letras**: descarga subtítulos en el idioma elegido, si están disponibles.
-- **Cookies** (archivo o navegador): para contenido con restricción de edad o cuentas privadas.
-- **Proxy, descargas simultáneas, modo cauteloso** (pausas entre descargas), notificaciones de escritorio.
-
-## Dónde guarda sus datos ClipVault
-
-A diferencia de versiones antiguas, la configuración **no** se guarda junto al ejecutable (evita problemas de permisos si se instala en `Program Files`):
-
-| Archivo | Ubicación | Contenido |
-|---|---|---|
-| `settings.json` | `%LOCALAPPDATA%\ClipVault\` | Carpeta de destino, ruta de ffmpeg, perfil activo, etc. |
-| `profiles.json` | `%LOCALAPPDATA%\ClipVault\` | Perfiles de calidad personalizados |
-| `history.json` | `%LOCALAPPDATA%\ClipVault\` | Historial de descargas |
-| `logs\clipvault.log` | `%LOCALAPPDATA%\ClipVault\logs\` | Registro rotativo (2 MB x 3 archivos) |
-
-La carpeta de descargas por defecto es la carpeta **Descargas** real del usuario actual (`%USERPROFILE%\Downloads`), a menos que la cambies en Configuración.
-
-## Empaquetado como ejecutable (.exe)
-
-1. Coloca `ffmpeg.exe`, `ffprobe.exe` y `yt-dlp.exe` en la raíz del proyecto (ver sección de binarios de terceros).
-2. Corre:
-   ```bash
-   .\build.bat
-   ```
-   Esto limpia compilaciones anteriores, corre PyInstaller en modo `--windowed` (sin consola) y copia los tres binarios sueltos junto al `.exe` resultante en `dist\ClipVault\`.
-3. Prueba `dist\ClipVault\ClipVault.exe` directamente antes de empaquetar el instalador.
-
-### Generar el instalador (Inno Setup)
-
-Con [Inno Setup](https://jrsoftware.org/isinfo.php) instalado, compila cualquiera de los dos scripts según el caso de uso:
-
-| Script | Instala en | Requiere admin |
-|---|---|---|
-| `installer_admin.iss` | `C:\Program Files\ClipVault\` | Sí (UAC automático) |
-| `installer_noadmin.iss` | `%LOCALAPPDATA%\ClipVault\` | No — ideal para PCs restringidas (empresas, colegios) |
-
-```bash
-ISCC.exe installer_admin.iss
-ISCC.exe installer_noadmin.iss
-```
-
-Los instaladores finales quedan en `installer_output\`.
-
-### Nota sobre SmartScreen/antivirus
-
-La primera vez que se abra el instalador o el `.exe` en una PC nueva, Windows SmartScreen o algún antivirus pueden mostrar una advertencia por no estar firmado digitalmente. Es normal en ejecutables de PyInstaller sin certificado de firma de código pagado — no significa que el programa tenga virus.
-
-## Actualizar yt-dlp
-
-Desde la propia app: pestaña Configuración → botón "Actualizar yt-dlp" (corre `pip install --upgrade yt-dlp` internamente). También manualmente:
-
-```bash
-pip install -U yt-dlp
-```
-
-## Notas técnicas
-
-- Backend: Flask + Flask-SocketIO (modo threading) para progreso en tiempo real sin bloquear la UI.
-- Cola de descargas: prioridad por orden de llegada (FIFO), reordenable arrastrando; concurrencia configurable (1 a 4 descargas simultáneas).
-- Reintentos automáticos ante errores transitorios; los errores permanentes (video privado, eliminado, geo-bloqueado) se detectan y no se reintentan innecesariamente.
-- Detección de duplicados: no vuelve a descargar un video ya bajado en la misma carpeta de destino.
-- Sanitización de nombres de archivo para evitar caracteres inválidos en Windows.
+La versión anterior en Python/Flask está en el historial de git (commit `1bdbf0c`).

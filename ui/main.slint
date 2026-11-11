@@ -1,0 +1,1915 @@
+import { ListView, ScrollView, Palette } from "std-widgets.slint";
+import { M3, Ic, Lay, Backend, VideoRow, QueueRow, HistoryRow, ProfileRow } from "theme.slint";
+import { Icon, IconBtn, M3Button, Segmented, Check, Thumb, EmptyState, Card, SettingRow, SectionTitle } from "components.slint";
+import { TextField, TextArea, Dropdown, M3Switch, Progress, Stepper } from "widgets.slint";
+
+export { Backend, VideoRow, QueueRow, HistoryRow, ProfileRow }
+
+// ───────────────────────────── Navegacion ─────────────────────────────
+
+component NavItem inherits Rectangle {
+    in property <string> icon;
+    in property <string> label;
+    in property <bool> selected;
+    in property <int> badge: 0;
+    callback clicked;
+    height: Lay.compact ? 60px : 76px;
+    ta := TouchArea {
+        mouse-cursor: MouseCursor.pointer;
+        clicked => {
+            root.clicked();
+        }
+    }
+    Rectangle {
+        x: (parent.width - self.width) / 2;
+        y: 8px;
+        width: root.selected ? 64px : 56px;
+        height: 32px;
+        border-radius: 16px;
+        background: root.selected ? M3.secondary-container : (ta.has-hover ? M3.on-surface.with-alpha(0.08) : transparent);
+        animate background, width { duration: 150ms; }
+        Icon {
+            d: root.icon;
+            tint: root.selected ? M3.on-secondary-container : M3.on-surface-variant;
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+        }
+        if root.badge > 0: Rectangle {
+            x: parent.width - 20px;
+            y: -2px;
+            width: 18px;
+            height: 16px;
+            border-radius: 8px;
+            background: M3.error;
+            Text {
+                text: root.badge;
+                font-size: 10px;
+                font-weight: 700;
+                color: M3.surface;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+    Text {
+        x: 0px;
+        y: 44px;
+        width: parent.width;
+        visible: !Lay.compact;
+        text: root.label;
+        font-size: 12px;
+        font-weight: root.selected ? 700 : 500;
+        color: root.selected ? M3.on-surface : M3.on-surface-variant;
+        horizontal-alignment: center;
+    }
+}
+
+component NavRail inherits Rectangle {
+    width: Lay.nav;
+    background: M3.surface-low;
+    VerticalLayout {
+        padding-top: 20px;
+        padding-bottom: 16px;
+        spacing: 4px;
+        Rectangle {
+            height: 68px;
+            Image {
+                source: @image-url("../assets/logo.png");
+                x: (parent.width - self.width) / 2;
+                y: 4px;
+                width: 48px;
+                height: 48px;
+            }
+        }
+        NavItem {
+            icon: Ic.search;
+            label: @tr("Buscar");
+            selected: Backend.page == 0;
+            clicked => {
+                Backend.page = 0;
+            }
+        }
+        NavItem {
+            icon: Ic.link;
+            label: @tr("Enlace");
+            selected: Backend.page == 1;
+            clicked => {
+                Backend.page = 1;
+            }
+        }
+        NavItem {
+            icon: Ic.download;
+            label: @tr("Descargas");
+            selected: Backend.page == 2;
+            badge: Backend.queue-rows.length;
+            clicked => {
+                Backend.page = 2;
+            }
+        }
+        NavItem {
+            icon: Ic.list;
+            label: @tr("Perfiles");
+            selected: Backend.page == 3;
+            clicked => {
+                Backend.page = 3;
+            }
+        }
+        NavItem {
+            icon: Ic.settings;
+            label: @tr("Ajustes");
+            selected: Backend.page == 4;
+            clicked => {
+                Backend.page = 4;
+            }
+        }
+        Rectangle {
+            vertical-stretch: 1;
+        }
+        Rectangle {
+            height: 48px;
+            IconBtn {
+                icon: Backend.dark ? Ic.light-mode : Ic.dark-mode;
+                x: (parent.width - self.width) / 2;
+                clicked => {
+                    Backend.toggle-dark();
+                }
+            }
+        }
+    }
+}
+
+// ───────────────────────────── Filas ─────────────────────────────
+
+component VideoItemButtons inherits Rectangle {
+    callback preview(bool);
+    callback trim();
+    HorizontalLayout {
+        alignment: end;
+        IconBtn {
+            icon: Ic.audio;
+            size: 40px;
+            clicked => {
+                root.preview(false);
+            }
+        }
+        IconBtn {
+            icon: Ic.play;
+            size: 40px;
+            clicked => {
+                root.preview(true);
+            }
+        }
+        IconBtn {
+            icon: Ic.cut;
+            size: 40px;
+            clicked => {
+                root.trim();
+            }
+        }
+    }
+}
+
+component VideoItem inherits Rectangle {
+    in property <VideoRow> data;
+    callback toggled;
+    callback preview(bool);
+    callback trim();
+    height: 88px;
+    ta := TouchArea {
+        mouse-cursor: MouseCursor.pointer;
+        clicked => {
+            root.toggled();
+        }
+    }
+    Rectangle {
+        y: 3px;
+        height: parent.height - 6px;
+        border-radius: 16px;
+        background: root.data.selected ? M3.primary-container.with-alpha(0.5) : (ta.has-hover ? M3.on-surface.with-alpha(0.06) : transparent);
+        animate background { duration: 120ms; }
+    }
+    Check {
+        x: 16px;
+        y: 33px;
+        checked: root.data.selected;
+    }
+    Thumb {
+        x: 56px;
+        y: 8px;
+        width: 128px;
+        height: 72px;
+        src: root.data.thumb;
+        has: root.data.has-thumb;
+    }
+    Text {
+        x: 200px;
+        y: 16px;
+        width: parent.width - 200px - 150px;
+        height: 38px;
+        text: root.data.title;
+        font-size: 14px;
+        font-weight: 500;
+        color: M3.on-surface;
+        wrap: word-wrap;
+        overflow: elide;
+    }
+    Text {
+        x: 200px;
+        y: 58px;
+        width: parent.width - 200px - 150px;
+        text: root.data.meta;
+        font-size: 12px;
+        color: M3.on-surface-variant;
+        overflow: elide;
+    }
+    VideoItemButtons {
+        x: parent.width - 140px;
+        y: 24px;
+        width: 132px;
+        height: 40px;
+        preview(v) => {
+            root.preview(v);
+        }
+        trim => {
+            root.trim();
+        }
+    }
+}
+
+component QueueItem inherits Rectangle {
+    in property <QueueRow> data;
+    property <length> drag-y: 0px;
+    property <bool> dragging: false;
+    height: 108px;
+    z: dragging ? 50 : 0;
+    Rectangle {
+        y: root.drag-y;
+        width: parent.width;
+        height: parent.height;
+        Rectangle {
+            y: 4px;
+            height: parent.height - 8px;
+            border-radius: 18px;
+            background: root.dragging ? M3.surface-highest : M3.surface-high;
+            drop-shadow-blur: root.dragging ? 18px : 0px;
+            drop-shadow-color: #00000070;
+            drop-shadow-offset-y: 4px;
+        }
+        Icon {
+            d: Ic.grip;
+            tint: M3.on-surface-variant.with-alpha(0.7);
+            x: 8px;
+            y: (parent.height - self.height) / 2;
+        }
+        Thumb {
+            x: 40px;
+            y: 18px;
+            width: 128px;
+            height: 72px;
+            src: root.data.thumb;
+            has: root.data.has-thumb;
+        }
+        Text {
+            x: 184px;
+            y: 18px;
+            width: parent.width - 184px - 150px;
+            text: root.data.title;
+            font-size: 14px;
+            font-weight: 600;
+            color: M3.on-surface;
+            overflow: elide;
+        }
+        Text {
+            x: 184px;
+            y: 42px;
+            width: parent.width - 184px - 150px;
+            text: root.data.status + (root.data.detail != "" ? " · " + root.data.detail : "");
+            font-size: 12px;
+            color: M3.on-surface-variant;
+            overflow: elide;
+        }
+        Progress {
+            x: 184px;
+            y: 72px;
+            width: parent.width - 184px - 24px;
+            value: root.data.pct / 100;
+            indeterminate: root.data.busy;
+        }
+        HorizontalLayout {
+            x: parent.width - 144px;
+            y: 12px;
+            width: 132px;
+            height: 40px;
+            alignment: end;
+            IconBtn {
+                icon: Ic.folder;
+                size: 40px;
+                clicked => {
+                    Backend.open-queue-folder(root.data.id);
+                }
+            }
+            IconBtn {
+                icon: root.data.paused ? Ic.play : Ic.pause;
+                size: 40px;
+                tint: M3.primary;
+                is-enabled: root.data.can-pause || root.data.paused;
+                clicked => {
+                    if (root.data.paused) {
+                        Backend.resume(root.data.id);
+                    } else {
+                        Backend.pause(root.data.id);
+                    }
+                }
+            }
+            IconBtn {
+                icon: Ic.close;
+                size: 40px;
+                tint: M3.error;
+                clicked => {
+                    Backend.cancel(root.data.id);
+                }
+            }
+        }
+    }
+    // Asa de arrastre: no se mueve con la fila para que el gesto sea estable.
+    TouchArea {
+        x: 0px;
+        y: 0px;
+        width: 40px;
+        height: parent.height;
+        mouse-cursor: MouseCursor.grab;
+        moved => {
+            if (self.pressed) {
+                root.dragging = true;
+                root.drag-y = self.mouse-y - self.pressed-y;
+            }
+        }
+        pointer-event(e) => {
+            if (e.kind == PointerEventKind.up || e.kind == PointerEventKind.cancel) {
+                if (root.dragging) {
+                    Backend.drag-move(root.data.id, root.drag-y / 108px);
+                }
+                root.dragging = false;
+                root.drag-y = 0px;
+            }
+        }
+    }
+}
+
+component HistoryItem inherits Rectangle {
+    in property <HistoryRow> data;
+    height: 92px;
+    Thumb {
+        x: 12px;
+        y: 10px;
+        width: 128px;
+        height: 72px;
+        src: root.data.thumb;
+        has: root.data.has-thumb;
+    }
+    Icon {
+        x: 154px;
+        y: 14px;
+        size: 20px;
+        d: root.data.kind == 0 ? Ic.check-circle : (root.data.kind == 1 ? Ic.error : Ic.warning);
+        tint: root.data.kind == 0 ? M3.success : (root.data.kind == 1 ? M3.error : M3.outline);
+    }
+    Text {
+        x: 182px;
+        y: 14px;
+        width: parent.width - 182px - 150px;
+        text: root.data.title;
+        font-size: 14px;
+        font-weight: 500;
+        color: M3.on-surface;
+        overflow: elide;
+    }
+    Text {
+        x: 182px;
+        y: 38px;
+        width: parent.width - 182px - 150px;
+        text: root.data.meta;
+        font-size: 12px;
+        color: M3.on-surface-variant;
+        overflow: elide;
+    }
+    Text {
+        x: 182px;
+        y: 58px;
+        width: parent.width - 182px - 150px;
+        text: root.data.error;
+        font-size: 12px;
+        color: M3.error;
+        overflow: elide;
+    }
+    HorizontalLayout {
+        x: parent.width - 140px;
+        y: 26px;
+        width: 132px;
+        height: 40px;
+        alignment: end;
+        IconBtn {
+            icon: Ic.edit;
+            size: 40px;
+            is-enabled: root.data.can-edit;
+            clicked => {
+                Backend.edit-tags(root.data.id);
+            }
+        }
+        IconBtn {
+            icon: Ic.folder;
+            size: 40px;
+            clicked => {
+                Backend.open-folder(root.data.id);
+            }
+        }
+        IconBtn {
+            icon: Ic.refresh;
+            size: 40px;
+            tint: M3.primary;
+            clicked => {
+                Backend.retry(root.data.id);
+            }
+        }
+    }
+    Rectangle {
+        y: parent.height - 1px;
+        x: 12px;
+        width: parent.width - 24px;
+        height: 1px;
+        background: M3.outline-variant.with-alpha(0.5);
+    }
+}
+
+component ProfileItem inherits Rectangle {
+    in property <ProfileRow> data;
+    height: 88px;
+    Rectangle {
+        y: 4px;
+        height: parent.height - 8px;
+        border-radius: 20px;
+        background: root.data.active ? M3.primary-container.with-alpha(0.6) : M3.surface-high;
+        border-width: root.data.active ? 2px : 0px;
+        border-color: M3.primary;
+        animate background { duration: 150ms; }
+    }
+    Rectangle {
+        x: 20px;
+        y: 22px;
+        width: 44px;
+        height: 44px;
+        border-radius: 22px;
+        background: root.data.audio ? M3.secondary-container : M3.primary-container;
+        Icon {
+            d: root.data.audio ? Ic.audio : Ic.movie;
+            tint: root.data.audio ? M3.on-secondary-container : M3.on-primary-container;
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+        }
+    }
+    Text {
+        x: 80px;
+        y: 22px;
+        width: parent.width - 80px - 200px;
+        text: root.data.name;
+        font-size: 15px;
+        font-weight: 600;
+        color: M3.on-surface;
+        overflow: elide;
+    }
+    Text {
+        x: 80px;
+        y: 46px;
+        width: parent.width - 80px - 200px;
+        text: root.data.desc;
+        font-size: 12px;
+        color: M3.on-surface-variant;
+        overflow: elide;
+    }
+    HorizontalLayout {
+        x: parent.width - 196px;
+        y: 24px;
+        width: 184px;
+        height: 40px;
+        alignment: end;
+        spacing: 4px;
+        if !root.data.builtin: IconBtn {
+            icon: Ic.delete;
+            tint: M3.error;
+            clicked => {
+                Backend.profile-delete(root.data.id);
+            }
+        }
+        M3Button {
+            text: root.data.active ? @tr("En uso") : @tr("Usar");
+            icon: root.data.active ? Ic.check : "";
+            variant: root.data.active ? "text" : "tonal";
+            is-enabled: !root.data.active;
+            clicked => {
+                Backend.profile-activate(root.data.id);
+            }
+        }
+    }
+}
+
+// ───────────────────────────── Paneles reutilizables ─────────────────────────────
+
+component PageTitle inherits Rectangle {
+    in property <string> title;
+    in property <string> subtitle;
+    in property <string> icon;
+    height: 56px;
+    Rectangle {
+        x: 0px;
+        width: 48px;
+        height: 48px;
+        y: 4px;
+        border-radius: 16px;
+        background: M3.primary-container;
+        Icon {
+            d: root.icon;
+            tint: M3.on-primary-container;
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+        }
+    }
+    Text {
+        x: 64px;
+        y: 2px;
+        text: root.title;
+        font-size: 26px;
+        font-weight: 600;
+        color: M3.on-surface;
+    }
+    Text {
+        x: 64px;
+        y: 36px;
+        text: root.subtitle;
+        font-size: 13px;
+        color: M3.on-surface-variant;
+    }
+}
+
+component DestBar inherits Card {
+    height: 112px;
+    VerticalLayout {
+        padding: 16px;
+        spacing: 10px;
+        HorizontalLayout {
+            spacing: 12px;
+            Dropdown {
+                options: Backend.profile-names;
+                current-index <=> Backend.profile-index;
+                min-width: Lay.compact ? 200px : 280px;
+                selected(i) => {
+                    Backend.profile-changed();
+                }
+            }
+            TextField {
+                text: Backend.dest-dir;
+                read-only: true;
+                icon: Ic.folder;
+                horizontal-stretch: 1;
+            }
+            if !Lay.compact: M3Button {
+                text: @tr("Cambiar carpeta");
+                icon: Ic.folder;
+                variant: "tonal";
+                clicked => {
+                    Backend.choose-folder();
+                }
+            }
+            if Lay.compact: IconBtn {
+                icon: Ic.folder;
+                clicked => {
+                    Backend.choose-folder();
+                }
+            }
+        }
+        Text {
+            text: Backend.profile-desc;
+            font-size: 12px;
+            color: M3.on-surface-variant;
+            overflow: elide;
+        }
+    }
+}
+
+component ResultsPanel inherits Card {
+    in property <[VideoRow]> rows;
+    in property <int> list;
+    in property <int> selected;
+    in property <bool> busy;
+    in property <string> error;
+    in property <string> heading;
+    in property <string> empty-title;
+    in property <string> empty-text;
+    in property <string> warning;
+    VerticalLayout {
+        padding: 20px;
+        spacing: 10px;
+        HorizontalLayout {
+            spacing: 6px;
+            Text {
+                text: root.heading != "" ? root.heading : @tr("Resultados");
+                font-size: 18px;
+                font-weight: 600;
+                color: M3.on-surface;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+                overflow: elide;
+            }
+            M3Button {
+                text: @tr("Todo");
+                variant: "text";
+                is-enabled: root.rows.length > 0;
+                clicked => {
+                    Backend.select-all(root.list, true);
+                }
+            }
+            M3Button {
+                text: @tr("Ninguno");
+                variant: "text";
+                is-enabled: root.rows.length > 0;
+                clicked => {
+                    Backend.select-all(root.list, false);
+                }
+            }
+            if !Lay.compact: M3Button {
+                text: @tr("Quitar no marcados");
+                variant: "text";
+                is-enabled: root.rows.length > 0 && root.selected < root.rows.length;
+                clicked => {
+                    Backend.remove-unselected(root.list);
+                }
+            }
+            if !Lay.compact: M3Button {
+                text: @tr("Vaciar");
+                variant: "text";
+                is-enabled: root.rows.length > 0;
+                clicked => {
+                    Backend.clear-list(root.list);
+                }
+            }
+            M3Button {
+                text: root.selected > 0 ? @tr("Descargar ({})", root.selected) : @tr("Descargar");
+                icon: Ic.download;
+                is-enabled: root.selected > 0;
+                clicked => {
+                    Backend.download(root.list);
+                }
+            }
+        }
+        if root.busy: Progress {
+            indeterminate: true;
+        }
+        if root.error != "": Rectangle {
+            height: 44px;
+            border-radius: 14px;
+            background: M3.error-container;
+            Text {
+                x: 16px;
+                width: parent.width - 32px;
+                text: root.error;
+                color: M3.on-error-container;
+                font-size: 13px;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+        }
+        Rectangle {
+            vertical-stretch: 1;
+            ListView {
+                visible: root.rows.length > 0;
+                for row[i] in root.rows: VideoItem {
+                    data: row;
+                    toggled => {
+                        Backend.toggle-select(root.list, i);
+                    }
+                    preview(v) => {
+                        Backend.preview(root.list, i, v);
+                    }
+                    trim => {
+                        Backend.trim-open(root.list, i);
+                    }
+                }
+            }
+            if root.rows.length == 0 && !root.busy: EmptyState {
+                width: parent.width;
+                height: parent.height;
+                icon: Ic.search;
+                title: root.empty-title;
+                subtitle: root.empty-text;
+            }
+        }
+        if root.warning != "": Rectangle {
+            height: 44px;
+            border-radius: 14px;
+            background: M3.secondary-container;
+            HorizontalLayout {
+                padding-left: 14px;
+                padding-right: 14px;
+                spacing: 8px;
+                Icon {
+                    d: Ic.warning;
+                    tint: M3.on-secondary-container;
+                    size: 20px;
+                    height: 44px;
+                }
+                Text {
+                    text: root.warning;
+                    color: M3.on-secondary-container;
+                    font-size: 13px;
+                    vertical-alignment: center;
+                    overflow: elide;
+                }
+            }
+        }
+    }
+}
+
+component QueuePanel inherits Card {
+    VerticalLayout {
+        padding: 20px;
+        spacing: 10px;
+        HorizontalLayout {
+            spacing: 8px;
+            Text {
+                text: @tr("Cola activa");
+                font-size: 18px;
+                font-weight: 600;
+                color: M3.on-surface;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+            }
+            M3Button {
+                text: @tr("Borrar cola");
+                icon: Ic.delete;
+                variant: "danger";
+                is-enabled: Backend.queue-rows.length > 0;
+                clicked => {
+                    Backend.clear-queue();
+                }
+            }
+        }
+        Rectangle {
+            vertical-stretch: 1;
+            ListView {
+                visible: Backend.queue-rows.length > 0;
+                for row in Backend.queue-rows: QueueItem {
+                    data: row;
+                }
+            }
+            if Backend.queue-rows.length == 0: EmptyState {
+                width: parent.width;
+                height: parent.height;
+                icon: Ic.download;
+                title: @tr("No hay descargas en curso");
+                subtitle: @tr("Lo que descargues aparecerá aquí. Arrastra el asa para cambiar la prioridad.");
+            }
+        }
+    }
+}
+
+component HistoryPanel inherits Card {
+    VerticalLayout {
+        padding: 20px;
+        spacing: 10px;
+        HorizontalLayout {
+            spacing: 8px;
+            Text {
+                text: @tr("Historial");
+                font-size: 18px;
+                font-weight: 600;
+                color: M3.on-surface;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+            }
+            M3Button {
+                text: @tr("Borrar historial");
+                icon: Ic.delete;
+                variant: "danger";
+                is-enabled: Backend.history-total > 0;
+                clicked => {
+                    Backend.clear-history();
+                }
+            }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            TextField {
+                text <=> Backend.hist-query;
+                placeholder: @tr("Buscar por título…");
+                icon: Ic.search;
+                horizontal-stretch: 1;
+                edited => {
+                    Backend.history-changed();
+                }
+            }
+            Dropdown {
+                options: [@tr("Todos"), @tr("Completados"), @tr("Fallidos")];
+                current-index <=> Backend.hist-filter;
+                min-width: 170px;
+                selected(i) => {
+                    Backend.history-changed();
+                }
+            }
+        }
+        Rectangle {
+            vertical-stretch: 1;
+            ListView {
+                visible: Backend.history-rows.length > 0;
+                for row in Backend.history-rows: HistoryItem {
+                    data: row;
+                }
+            }
+            if Backend.history-rows.length == 0: EmptyState {
+                width: parent.width;
+                height: parent.height;
+                icon: Ic.history;
+                title: Backend.history-total > 0 ? @tr("Sin coincidencias") : @tr("El historial está vacío");
+                subtitle: Backend.history-total > 0 ? @tr("Prueba con otro texto o filtro.") : @tr("Aquí verás lo que ya descargaste.");
+            }
+        }
+    }
+}
+
+// ───────────────────────────── Paginas ─────────────────────────────
+
+component SearchPage inherits Rectangle {
+    VerticalLayout {
+        padding: Lay.pad;
+        padding-top: 24px;
+        spacing: 20px;
+        PageTitle {
+            title: @tr("Buscar");
+            subtitle: @tr("Encuentra videos y canciones en YouTube sin pegar enlaces");
+            icon: Ic.search;
+        }
+        Card {
+            height: 84px;
+            HorizontalLayout {
+                padding: 20px;
+                spacing: 12px;
+                TextField {
+                    text <=> Backend.search-query;
+                    placeholder: @tr("Nombre de la canción o del video…");
+                    icon: Ic.search;
+                    pill: true;
+                    horizontal-stretch: 1;
+                    accepted => {
+                        Backend.search();
+                    }
+                }
+                Dropdown {
+                    options: [@tr("10 resultados"), @tr("15 resultados"), @tr("25 resultados"), @tr("40 resultados")];
+                    current-index <=> Backend.search-count-idx;
+                    min-width: 180px;
+                }
+                M3Button {
+                    text: @tr("Buscar");
+                    icon: Ic.search;
+                    is-enabled: !Backend.search-busy;
+                    clicked => {
+                        Backend.search();
+                    }
+                }
+            }
+        }
+        DestBar { }
+        ResultsPanel {
+            vertical-stretch: 1;
+            rows: Backend.search-rows;
+            list: 0;
+            selected: Backend.search-selected;
+            busy: Backend.search-busy;
+            error: Backend.search-error;
+            empty-title: @tr("Busca algo para empezar");
+            empty-text: @tr("Escribe el nombre de una canción o video y pulsa Buscar.");
+        }
+    }
+}
+
+component UrlPage inherits Rectangle {
+    VerticalLayout {
+        padding: Lay.pad;
+        padding-top: 24px;
+        spacing: 20px;
+        PageTitle {
+            title: @tr("Enlace");
+            subtitle: @tr("Videos sueltos, listas de reproducción o varios enlaces a la vez");
+            icon: Ic.link;
+        }
+        Card {
+            height: Backend.url-mode == 2 ? 236px : 128px;
+            VerticalLayout {
+                padding: 20px;
+                spacing: 14px;
+                Segmented {
+                    options: [@tr("Un solo video"), @tr("Lista de reproducción"), @tr("Varios enlaces")];
+                    current <=> Backend.url-mode;
+                    width: 480px;
+                    selected(i) => {
+                        Backend.url-mode-changed();
+                    }
+                }
+                if Backend.url-mode != 2: HorizontalLayout {
+                    spacing: 12px;
+                    TextField {
+                        text <=> Backend.url-text;
+                        placeholder: "https://…";
+                        icon: Ic.link;
+                        horizontal-stretch: 1;
+                        accepted => {
+                            Backend.extract-url();
+                        }
+                    }
+                    M3Button {
+                        text: @tr("Extraer");
+                        icon: Ic.search;
+                        is-enabled: !Backend.url-busy;
+                        clicked => {
+                            Backend.extract-url();
+                        }
+                    }
+                }
+                if Backend.url-mode == 2: VerticalLayout {
+                    spacing: 12px;
+                    TextArea {
+                        text <=> Backend.bulk-text;
+                        placeholder: @tr("Un enlace por línea");
+                        height: 96px;
+                    }
+                    HorizontalLayout {
+                        alignment: end;
+                        M3Button {
+                            text: @tr("Extraer todos");
+                            icon: Ic.search;
+                            is-enabled: !Backend.url-busy;
+                            clicked => {
+                                Backend.extract-url();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        DestBar { }
+        ResultsPanel {
+            vertical-stretch: 1;
+            rows: Backend.url-rows;
+            list: Backend.url-mode + 1;
+            selected: Backend.url-selected;
+            busy: Backend.url-busy;
+            error: Backend.url-error;
+            heading: Backend.url-title;
+            warning: Backend.skipped-summary;
+            empty-title: @tr("Pega un enlace");
+            empty-text: @tr("Funciona con YouTube y cientos de sitios compatibles con yt-dlp.");
+        }
+    }
+}
+
+component DownloadsPage inherits Rectangle {
+    VerticalLayout {
+        padding: Lay.pad;
+        padding-top: 24px;
+        spacing: 20px;
+        PageTitle {
+            title: @tr("Descargas");
+            subtitle: @tr("Cola en curso e historial");
+            icon: Ic.download;
+        }
+        if root.width > 1180px: HorizontalLayout {
+            spacing: 20px;
+            QueuePanel { }
+            HistoryPanel { }
+        }
+        if root.width <= 1180px: VerticalLayout {
+            spacing: 20px;
+            QueuePanel { }
+            HistoryPanel { }
+        }
+    }
+}
+
+component ProfilesPage inherits Rectangle {
+    VerticalLayout {
+        padding: Lay.pad;
+        padding-top: 24px;
+        spacing: 20px;
+        HorizontalLayout {
+            spacing: 12px;
+            PageTitle {
+                title: @tr("Perfiles");
+                subtitle: @tr("Calidad y formato de cada descarga");
+                icon: Ic.list;
+                horizontal-stretch: 1;
+            }
+            M3Button {
+                text: @tr("Nuevo perfil");
+                icon: Ic.add;
+                clicked => {
+                    Backend.profile-dialog = true;
+                }
+            }
+        }
+        Card {
+            vertical-stretch: 1;
+            VerticalLayout {
+                padding: 14px;
+                ListView {
+                    for row in Backend.profile-rows: ProfileItem {
+                        data: row;
+                    }
+                }
+            }
+        }
+    }
+}
+
+component SettingsColA inherits Rectangle {
+    VerticalLayout {
+        spacing: 20px;
+            Card {
+                VerticalLayout {
+                    padding: 20px;
+                    spacing: 4px;
+                    SectionTitle {
+                        text: @tr("Descarga");
+                    }
+                    SettingRow {
+                        title: @tr("Descargas simultáneas");
+                        Dropdown {
+                            options: ["1", "2", "3", "4"];
+                            current-index <=> Backend.conc-idx;
+                            min-width: 260px;
+        max-width: 260px;
+                            selected(i) => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                    SettingRow {
+                        title: @tr("Límite de velocidad");
+                        Dropdown {
+                            options: [@tr("Sin límite"), @tr("500 KB/s"), @tr("1 MB/s"), @tr("2 MB/s"), @tr("5 MB/s")];
+                            current-index <=> Backend.rate-idx;
+                            min-width: 260px;
+        max-width: 260px;
+                            selected(i) => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                    SettingRow {
+                        title: @tr("Pausas entre descargas");
+                        subtitle: @tr("Reduce el riesgo de bloqueos por exceso de peticiones.");
+                        Dropdown {
+                            options: [@tr("Desactivadas"), @tr("Equilibrado"), @tr("Cauteloso")];
+                            current-index <=> Backend.cautious-idx;
+                            min-width: 260px;
+        max-width: 260px;
+                            selected(i) => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                }
+            }
+            Card {
+                VerticalLayout {
+                    padding: 20px;
+                    spacing: 4px;
+                    SectionTitle {
+                        text: @tr("Red y cuenta");
+                    }
+                    SettingRow {
+                        title: @tr("Cookies");
+                        subtitle: @tr("Para videos con restricción de edad o de miembros.");
+                        Dropdown {
+                            options: [@tr("No usar"), @tr("Archivo cookies.txt"), @tr("Desde el navegador")];
+                            current-index <=> Backend.cookies-mode;
+                            min-width: 260px;
+        max-width: 260px;
+                            selected(i) => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                    if Backend.cookies-mode == 1: SettingRow {
+                        title: @tr("Archivo de cookies");
+                        HorizontalLayout {
+                            spacing: 8px;
+                            TextField {
+                                text <=> Backend.cookies-file;
+                                min-width: 260px;
+        max-width: 260px;
+                                edited => {
+                                    Backend.settings-changed();
+                                }
+                            }
+                            M3Button {
+                                text: @tr("Elegir");
+                                variant: "tonal";
+                                clicked => {
+                                    Backend.browse-cookies();
+                                }
+                            }
+                        }
+                    }
+                    if Backend.cookies-mode == 2: SettingRow {
+                        title: @tr("Navegador");
+                        Dropdown {
+                            options: [@tr("Chrome"), @tr("Firefox"), @tr("Edge"), @tr("Brave")];
+                            current-index <=> Backend.cookies-browser-idx;
+                            min-width: 260px;
+        max-width: 260px;
+                            selected(i) => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                    SettingRow {
+                        title: @tr("Proxy");
+                        subtitle: @tr("Opcional, por ejemplo http://host:puerto");
+                        TextField {
+                            text <=> Backend.proxy-url;
+                            min-width: 260px;
+        max-width: 260px;
+                            edited => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                    SettingRow {
+                        title: @tr("Máximo de elementos al leer una lista");
+                        Stepper {
+                            value <=> Backend.playlist-limit;
+                            edited => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                }
+            }
+
+        Card {
+            VerticalLayout {
+                padding: 20px;
+                spacing: 4px;
+                SectionTitle {
+                    text: @tr("Organización");
+                }
+                SettingRow {
+                    title: @tr("Carpetas");
+                    subtitle: @tr("Cómo se ordenan los archivos dentro de la carpeta de destino.");
+                    Dropdown {
+                        options: [@tr("Perfil y lista"), @tr("Por canal / artista"), @tr("Perfil y canal"), @tr("Sin subcarpetas")];
+                        current-index <=> Backend.folder-idx;
+                        min-width: 260px;
+                        max-width: 260px;
+                        selected(i) => {
+                            Backend.settings-changed();
+                        }
+                    }
+                }
+                SettingRow {
+                    title: @tr("Nombre del archivo");
+                    subtitle: @tr("Variables: {{title}} {{channel}} {{id}} {{profile}} {{date}}");
+                    TextField {
+                        text <=> Backend.name-template;
+                        placeholder: "{title}";
+                        min-width: 260px;
+                        max-width: 260px;
+                        edited => {
+                            Backend.settings-changed();
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+component SettingsColB inherits Rectangle {
+    VerticalLayout {
+        spacing: 20px;
+        Card {
+            VerticalLayout {
+                padding: 20px;
+                spacing: 4px;
+                SectionTitle {
+                    text: @tr("General");
+                }
+                SettingRow {
+                    title: @tr("Idioma");
+                    Dropdown {
+                        options: ["Español", "English"];
+                        current-index <=> Backend.lang-idx;
+                        min-width: 260px;
+                        max-width: 260px;
+                        selected(i) => {
+                            Backend.settings-changed();
+                        }
+                    }
+                }
+                SettingRow {
+                    title: @tr("Modo compacto");
+                    subtitle: @tr("Menos espacios y botones; se activa solo en ventanas pequeñas.");
+                    M3Switch {
+                        checked <=> Backend.compact-pref;
+                        toggled => {
+                            Backend.settings-changed();
+                        }
+                    }
+                }
+                SettingRow {
+                    title: @tr("Seguir en la bandeja al cerrar");
+                    subtitle: @tr("Así la extensión del navegador siempre encuentra la app.");
+                    M3Switch {
+                        checked <=> Backend.close-to-tray;
+                        toggled => {
+                            Backend.settings-changed();
+                        }
+                    }
+                }
+                SettingRow {
+                    title: @tr("Detectar enlaces copiados");
+                    subtitle: @tr("Ofrece descargar cuando copias un enlace de video.");
+                    M3Switch {
+                        checked <=> Backend.clipboard-watch;
+                        toggled => {
+                            Backend.settings-changed();
+                        }
+                    }
+                }
+                SettingRow {
+                    title: @tr("Notificaciones de Windows");
+                    M3Switch {
+                        checked <=> Backend.notifications;
+                        toggled => {
+                            Backend.settings-changed();
+                        }
+                    }
+                }
+            }
+        }
+            Card {
+                VerticalLayout {
+                    padding: 20px;
+                    spacing: 4px;
+                    SectionTitle {
+                        text: @tr("Procesado");
+                    }
+                    SettingRow {
+                        title: @tr("Quitar patrocinios (SponsorBlock)");
+                        subtitle: @tr("Recorta patrocinios, intros y outros automáticamente.");
+                        M3Switch {
+                            checked <=> Backend.sponsorblock;
+                            toggled => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                    SettingRow {
+                        title: @tr("Normalizar volumen");
+                        subtitle: @tr("Iguala el volumen entre canciones (EBU R128).");
+                        M3Switch {
+                            checked <=> Backend.normalize;
+                            toggled => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                    SettingRow {
+                        title: @tr("Incrustar miniatura y metadatos");
+                        M3Switch {
+                            checked <=> Backend.embed;
+                            toggled => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                    SettingRow {
+                        title: @tr("Descargar subtítulos");
+                        subtitle: @tr("Se guardan como .srt junto al video.");
+                        M3Switch {
+                            checked <=> Backend.subs;
+                            toggled => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                    if Backend.subs: SettingRow {
+                        title: @tr("Idioma de subtítulos");
+                        Dropdown {
+                            options: ["Español", @tr("Inglés"), @tr("Español o inglés"), @tr("Inglés o español"), @tr("Portugués"), @tr("Francés"), @tr("Alemán"), @tr("Italiano"), @tr("Japonés"), @tr("Coreano"), @tr("Chino")];
+                            current-index <=> Backend.subs-lang-idx;
+                            min-width: 260px;
+        max-width: 260px;
+                            selected(i) => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                }
+            }
+            Card {
+                VerticalLayout {
+                    padding: 20px;
+                    spacing: 4px;
+                    SectionTitle {
+                        text: @tr("Herramientas");
+                    }
+                    SettingRow {
+                        title: @tr("yt-dlp");
+                        subtitle: Backend.ytdlp-version != "" ? @tr("Versión {}", Backend.ytdlp-version) : @tr("No instalado");
+                        M3Button {
+                            text: @tr("Buscar actualizaciones");
+                            icon: Ic.sync;
+                            variant: "tonal";
+                            is-enabled: !Backend.tools-busy;
+                            clicked => {
+                                Backend.check-tools();
+                            }
+                        }
+                    }
+                    SettingRow {
+                        title: @tr("ffmpeg");
+                        subtitle: Backend.ffmpeg-version != "" ? @tr("Versión {}", Backend.ffmpeg-version) : @tr("No instalado");
+                        Text {
+                            text: Backend.tools-status;
+                            font-size: 12px;
+                            color: M3.on-surface-variant;
+                        }
+                    }
+                    if Backend.tools-busy: Progress {
+                        value: Backend.tools-progress;
+                        indeterminate: Backend.tools-progress < 0;
+                    }
+                    SettingRow {
+                        title: @tr("Actualizar al iniciar");
+                        subtitle: @tr("Comprueba yt-dlp y ffmpeg cada vez que abres la aplicación.");
+                        M3Switch {
+                            checked <=> Backend.auto-update;
+                            toggled => {
+                                Backend.settings-changed();
+                            }
+                        }
+                    }
+                }
+            }
+            Card {
+                VerticalLayout {
+                    padding: 20px;
+                    spacing: 8px;
+                    SectionTitle {
+                        text: @tr("Acerca de");
+                    }
+                    Text {
+                        text: @tr("ClipVault {} · por StalFre", Backend.app-version);
+                        font-size: 15px;
+                        color: M3.on-surface;
+                    }
+                    SettingRow {
+                        title: @tr("Actualizaciones de ClipVault");
+                        subtitle: Backend.app-update-status;
+                        HorizontalLayout {
+                            spacing: 8px;
+                            M3Button {
+                                text: @tr("Buscar actualización");
+                                icon: Ic.sync;
+                                variant: "tonal";
+                                is-enabled: !Backend.app-update-busy;
+                                clicked => {
+                                    Backend.check-app-update();
+                                }
+                            }
+                            if Backend.app-update-available: M3Button {
+                                text: @tr("Instalar");
+                                icon: Ic.download;
+                                clicked => {
+                                    Backend.install-app-update();
+                                }
+                            }
+                        }
+                    }
+                    Text {
+                        text: @tr("Interfaz nativa en Rust y Slint sobre yt-dlp y ffmpeg.");
+                        font-size: 12px;
+                        color: M3.on-surface-variant;
+                    }
+                    HorizontalLayout {
+                        alignment: start;
+                        M3Button {
+                            text: @tr("Abrir carpeta de registros");
+                            icon: Ic.folder;
+                            variant: "text";
+                            clicked => {
+                                Backend.open-logs();
+                            }
+                        }
+                    }
+                }
+            }
+
+    }
+}
+
+component SettingsPage inherits Rectangle {
+    ScrollView {
+        VerticalLayout {
+            padding: Lay.pad;
+            padding-top: 24px;
+            spacing: 20px;
+            PageTitle {
+                title: @tr("Ajustes");
+                subtitle: @tr("Descarga, red, procesado y herramientas");
+                icon: Ic.settings;
+            }
+            if root.width > 1250px: HorizontalLayout {
+                spacing: 20px;
+                SettingsColA {
+                    horizontal-stretch: 1;
+                }
+                SettingsColB {
+                    horizontal-stretch: 1;
+                }
+            }
+            if root.width <= 1250px: VerticalLayout {
+                spacing: 20px;
+                SettingsColA { }
+                SettingsColB { }
+            }
+        }
+    }
+}
+
+// ───────────────────────────── Dialogos ─────────────────────────────
+
+component Scrim inherits Rectangle {
+    callback dismissed;
+    background: M3.scrim.with-alpha(0.5);
+    TouchArea {
+        clicked => {
+            root.dismissed();
+        }
+    }
+}
+
+component ExtDialog inherits Rectangle {
+    Scrim {
+        dismissed => {
+            Backend.ext-dialog = false;
+        }
+    }
+    Rectangle {
+        width: min(480px, parent.width - 48px);
+        height: 236px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 28px;
+        background: M3.surface-high;
+        TouchArea { }
+        Text {
+            x: 24px;
+            y: 24px;
+            text: Backend.ext-title;
+            font-size: 24px;
+            color: M3.on-surface;
+        }
+        Text {
+            x: 24px;
+            y: 64px;
+            width: parent.width - 48px;
+            text: @tr("La extensión del navegador envió este enlace. ¿Cómo quieres leerlo?");
+            font-size: 14px;
+            color: M3.on-surface-variant;
+            wrap: word-wrap;
+        }
+        Rectangle {
+            x: 24px;
+            y: 112px;
+            width: parent.width - 48px;
+            height: 44px;
+            border-radius: 12px;
+            background: M3.surface;
+            Text {
+                x: 12px;
+                width: parent.width - 24px;
+                text: Backend.ext-url;
+                font-size: 12px;
+                color: M3.on-surface;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+        }
+        HorizontalLayout {
+            x: 24px;
+            y: parent.height - 64px;
+            width: parent.width - 48px;
+            height: 40px;
+            spacing: 8px;
+            alignment: end;
+            M3Button {
+                text: @tr("Cancelar");
+                variant: "text";
+                clicked => {
+                    Backend.ext-dialog = false;
+                }
+            }
+            M3Button {
+                text: @tr("Lista");
+                variant: "tonal";
+                clicked => {
+                    Backend.ext-choice(1);
+                }
+            }
+            M3Button {
+                text: @tr("Un video");
+                clicked => {
+                    Backend.ext-choice(0);
+                }
+            }
+        }
+    }
+}
+
+component ProfileDialog inherits Rectangle {
+    property <string> name;
+    property <int> kind: 0;
+    property <int> height-idx: 0;
+    property <int> container-idx: 0;
+    property <int> codec-idx: 0;
+    Scrim {
+        dismissed => {
+            Backend.profile-dialog = false;
+        }
+    }
+    Rectangle {
+        width: min(500px, parent.width - 48px);
+        height: 400px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 28px;
+        background: M3.surface-high;
+        TouchArea { }
+        Text {
+            x: 24px;
+            y: 24px;
+            text: @tr("Nuevo perfil");
+            font-size: 24px;
+            color: M3.on-surface;
+        }
+        VerticalLayout {
+            x: 24px;
+            y: 76px;
+            width: parent.width - 48px;
+            spacing: 14px;
+            TextField {
+                text <=> root.name;
+                placeholder: @tr("Nombre del perfil");
+            }
+            Segmented {
+                options: [@tr("Video"), @tr("Audio")];
+                current <=> root.kind;
+                width: 200px;
+            }
+            if root.kind == 0: Dropdown {
+                options: [@tr("Mejor calidad"), @tr("Hasta 2160p"), @tr("Hasta 1440p"), @tr("Hasta 1080p"), @tr("Hasta 720p"), @tr("Hasta 480p"), @tr("Hasta 360p")];
+                current-index <=> root.height-idx;
+            }
+            if root.kind == 0: Dropdown {
+                options: [@tr("Formatos nativos"), @tr("MP4 / H.264 (Smart TV)")];
+                current-index <=> root.container-idx;
+            }
+            if root.kind == 1: Dropdown {
+                options: ["MP3", "M4A / AAC", @tr("WAV (sin pérdida)"), @tr("FLAC (sin pérdida)"), @tr("Opus original")];
+                current-index <=> root.codec-idx;
+            }
+        }
+        HorizontalLayout {
+            x: 24px;
+            y: parent.height - 64px;
+            width: parent.width - 48px;
+            height: 40px;
+            spacing: 8px;
+            alignment: end;
+            M3Button {
+                text: @tr("Cancelar");
+                variant: "text";
+                clicked => {
+                    Backend.profile-dialog = false;
+                }
+            }
+            M3Button {
+                text: @tr("Guardar");
+                is-enabled: root.name != "";
+                clicked => {
+                    Backend.profile-create(root.name, root.kind, root.height-idx, root.container-idx, root.codec-idx);
+                    root.name = "";
+                    Backend.profile-dialog = false;
+                }
+            }
+        }
+    }
+}
+
+component TagDialog inherits Rectangle {
+    Scrim {
+        dismissed => {
+            Backend.tag-dialog = false;
+        }
+    }
+    Rectangle {
+        width: min(520px, parent.width - 48px);
+        height: 420px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 28px;
+        background: M3.surface-high;
+        TouchArea { }
+        Text {
+            x: 24px;
+            y: 24px;
+            text: @tr("Editar etiquetas");
+            font-size: 24px;
+            color: M3.on-surface;
+        }
+        VerticalLayout {
+            x: 24px;
+            y: 74px;
+            width: parent.width - 48px;
+            spacing: 12px;
+            TextField {
+                text <=> Backend.tag-title;
+                placeholder: @tr("Título");
+            }
+            TextField {
+                text <=> Backend.tag-artist;
+                placeholder: @tr("Artista");
+            }
+            TextField {
+                text <=> Backend.tag-album;
+                placeholder: @tr("Álbum");
+            }
+            HorizontalLayout {
+                spacing: 12px;
+                Text {
+                    text: Backend.tag-cover != "" ? Backend.tag-cover : @tr("Sin portada nueva");
+                    font-size: 12px;
+                    color: M3.on-surface-variant;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                    overflow: elide;
+                }
+                M3Button {
+                    text: @tr("Elegir portada");
+                    icon: Ic.image;
+                    variant: "tonal";
+                    clicked => {
+                        Backend.tag-pick-cover();
+                    }
+                }
+            }
+        }
+        HorizontalLayout {
+            x: 24px;
+            y: parent.height - 64px;
+            width: parent.width - 48px;
+            height: 40px;
+            spacing: 8px;
+            alignment: end;
+            M3Button {
+                text: @tr("Cancelar");
+                variant: "text";
+                clicked => {
+                    Backend.tag-dialog = false;
+                }
+            }
+            M3Button {
+                text: Backend.tag-busy ? @tr("Guardando…") : @tr("Guardar");
+                is-enabled: !Backend.tag-busy;
+                clicked => {
+                    Backend.tag-save();
+                }
+            }
+        }
+    }
+}
+
+component TrimDialog inherits Rectangle {
+    Scrim {
+        dismissed => {
+            Backend.trim-dialog = false;
+        }
+    }
+    Rectangle {
+        width: min(560px, parent.width - 48px);
+        height: 500px;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: 28px;
+        background: M3.surface-high;
+        TouchArea { }
+        Text {
+            x: 24px;
+            y: 20px;
+            width: parent.width - 48px;
+            text: @tr("Recortar video");
+            font-size: 24px;
+            color: M3.on-surface;
+        }
+        Thumb {
+            x: 24px;
+            y: 64px;
+            width: parent.width - 48px;
+            height: 220px;
+            src: Backend.trim-thumb;
+            has: Backend.trim-has-thumb;
+        }
+        Text {
+            x: 24px;
+            y: 292px;
+            width: parent.width - 48px;
+            text: Backend.trim-title + (Backend.trim-duration != "" ? "  ·  " + Backend.trim-duration : "");
+            font-size: 13px;
+            color: M3.on-surface-variant;
+            overflow: elide;
+        }
+        TextField {
+            x: 24px;
+            y: 322px;
+            width: (parent.width - 58px) / 2;
+            text <=> Backend.trim-from;
+            placeholder: @tr("Desde 0:00");
+        }
+        TextField {
+            x: 34px + (parent.width - 58px) / 2;
+            y: 322px;
+            width: (parent.width - 58px) / 2;
+            text <=> Backend.trim-to;
+            placeholder: @tr("Hasta fin");
+        }
+        HorizontalLayout {
+            x: 24px;
+            y: 378px;
+            width: parent.width - 48px;
+            height: 40px;
+            spacing: 8px;
+            M3Button {
+                text: @tr("Fotograma inicio");
+                icon: Ic.image;
+                variant: "tonal";
+                clicked => {
+                    Backend.trim-frame(true);
+                }
+            }
+            M3Button {
+                text: @tr("Fotograma final");
+                icon: Ic.image;
+                variant: "tonal";
+                clicked => {
+                    Backend.trim-frame(false);
+                }
+            }
+            M3Button {
+                text: @tr("Reproducir");
+                icon: Ic.play;
+                variant: "tonal";
+                clicked => {
+                    Backend.trim-preview(true);
+                }
+            }
+        }
+        HorizontalLayout {
+            x: 24px;
+            y: parent.height - 62px;
+            width: parent.width - 48px;
+            height: 40px;
+            spacing: 8px;
+            alignment: end;
+            M3Button {
+                text: @tr("Quitar recorte");
+                variant: "text";
+                clicked => {
+                    Backend.trim-clear();
+                }
+            }
+            M3Button {
+                text: @tr("Cancelar");
+                variant: "text";
+                clicked => {
+                    Backend.trim-dialog = false;
+                }
+            }
+            M3Button {
+                text: @tr("Aplicar");
+                clicked => {
+                    Backend.trim-apply();
+                }
+            }
+        }
+    }
+}
+
+// ───────────────────────────── Ventana ─────────────────────────────
+
+export component MainWindow inherits Window {
+    title: @tr("ClipVault");
+    icon: @image-url("../assets/logo.png");
+    min-width: 760px;
+    min-height: 560px;
+    preferred-width: 1280px;
+    preferred-height: 820px;
+    background: M3.surface;
+
+    property <bool> is-dark: Backend.dark;
+    property <bool> is-narrow: self.width < 1100px;
+    changed is-narrow => {
+        Backend.narrow = self.is-narrow;
+    }
+    init => {
+        Backend.narrow = self.width < 1100px;
+        Palette.color-scheme = Backend.dark ? ColorScheme.dark : ColorScheme.light;
+    }
+    changed is-dark => {
+        Palette.color-scheme = Backend.dark ? ColorScheme.dark : ColorScheme.light;
+    }
+
+    NavRail {
+        x: 0px;
+        y: 0px;
+        height: parent.height;
+    }
+    Rectangle {
+        x: Lay.nav;
+        y: 0px;
+        width: parent.width - Lay.nav;
+        height: parent.height;
+        SearchPage {
+            width: parent.width;
+            height: parent.height;
+            visible: Backend.page == 0;
+        }
+        UrlPage {
+            width: parent.width;
+            height: parent.height;
+            visible: Backend.page == 1;
+        }
+        DownloadsPage {
+            width: parent.width;
+            height: parent.height;
+            visible: Backend.page == 2;
+        }
+        ProfilesPage {
+            width: parent.width;
+            height: parent.height;
+            visible: Backend.page == 3;
+        }
+        SettingsPage {
+            width: parent.width;
+            height: parent.height;
+            visible: Backend.page == 4;
+        }
+    }
+
+    if Backend.ext-dialog: ExtDialog {
+        width: parent.width;
+        height: parent.height;
+    }
+    if Backend.trim-dialog: TrimDialog {
+        width: parent.width;
+        height: parent.height;
+    }
+    if Backend.tag-dialog: TagDialog {
+        width: parent.width;
+        height: parent.height;
+    }
+    if Backend.profile-dialog: ProfileDialog {
+        width: parent.width;
+        height: parent.height;
+    }
+
+    Rectangle {
+        width: min(520px, parent.width - 48px);
+        height: 48px;
+        x: (parent.width - self.width) / 2;
+        y: parent.height - 72px;
+        border-radius: 14px;
+        background: M3.inverse-surface;
+        opacity: Backend.toast-visible ? 1 : 0;
+        visible: self.opacity > 0.01;
+        animate opacity { duration: 200ms; }
+        Text {
+            x: 16px;
+            width: parent.width - 32px;
+            text: Backend.toast-text;
+            color: M3.inverse-on-surface;
+            font-size: 14px;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+    }
+}

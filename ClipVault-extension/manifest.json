@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "ClipVault Link Sender",
-  "version": "1.1",
-  "description": "Envia el video o playlist actual de YouTube a ClipVault con un clic.",
+  "version": "2.0",
+  "description": "Detecta videos de YouTube y ofrece enviarlos a ClipVault cuando la aplicación está abierta.",
   "action": {
     "default_title": "Enviar a ClipVault",
     "default_popup": "popup.html",
@@ -17,6 +17,14 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*", "https://m.youtube.com/*", "https://music.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
   "host_permissions": ["http://127.0.0.1:5000/*"],
   "permissions": ["activeTab"]
 }

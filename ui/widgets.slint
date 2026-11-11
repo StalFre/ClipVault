@@ -1,0 +1,278 @@
+import { M3, Ic } from "theme.slint";
+import { Icon, IconBtn } from "components.slint";
+
+export component TextField inherits Rectangle {
+    in-out property <string> text;
+    in property <string> placeholder;
+    in property <bool> read-only: false;
+    in property <string> icon;
+    in property <bool> pill: false;
+    callback accepted();
+    callback edited();
+    preferred-height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    min-width: 120px;
+    border-radius: pill ? 22px : 12px;
+    background: M3.surface;
+    border-width: ti.has-focus ? 2px : 1px;
+    border-color: ti.has-focus ? M3.primary : M3.outline-variant;
+    property <length> left: root.icon != "" ? 44px : 16px;
+    property <length> right: (root.text != "" && !root.read-only) ? 40px : 14px;
+    TouchArea {
+        mouse-cursor: MouseCursor.text;
+        clicked => {
+            ti.focus();
+        }
+    }
+    if root.icon != "": Icon {
+        x: 14px;
+        y: (parent.height - self.height) / 2;
+        d: root.icon;
+        size: 20px;
+    }
+    Text {
+        x: root.left;
+        width: parent.width - root.left - root.right;
+        height: parent.height;
+        text: root.placeholder;
+        visible: root.text == "";
+        color: M3.on-surface-variant.with-alpha(0.7);
+        font-size: 14px;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    ti := TextInput {
+        x: root.left;
+        width: parent.width - root.left - root.right;
+        height: parent.height;
+        text <=> root.text;
+        read-only: root.read-only;
+        color: M3.on-surface;
+        font-size: 14px;
+        vertical-alignment: center;
+        accepted => {
+            root.accepted();
+        }
+        edited => {
+            root.edited();
+        }
+    }
+    if root.text != "" && !root.read-only: IconBtn {
+        icon: Ic.close;
+        size: 32px;
+        x: parent.width - 36px;
+        y: 6px;
+        clicked => {
+            root.text = "";
+            root.edited();
+        }
+    }
+}
+
+export component TextArea inherits Rectangle {
+    in-out property <string> text;
+    in property <string> placeholder;
+    min-height: 90px;
+    border-radius: 16px;
+    background: M3.surface;
+    border-width: ti.has-focus ? 2px : 1px;
+    border-color: ti.has-focus ? M3.primary : M3.outline-variant;
+    clip: true;
+    TouchArea {
+        clicked => {
+            ti.focus();
+        }
+    }
+    Text {
+        x: 16px;
+        y: 12px;
+        width: parent.width - 32px;
+        text: root.placeholder;
+        visible: root.text == "";
+        color: M3.on-surface-variant.with-alpha(0.7);
+        font-size: 14px;
+    }
+    ti := TextInput {
+        x: 16px;
+        y: 12px;
+        width: parent.width - 32px;
+        height: parent.height - 24px;
+        text <=> root.text;
+        wrap: word-wrap;
+        single-line: false;
+        color: M3.on-surface;
+        font-size: 14px;
+    }
+}
+
+export component Dropdown inherits Rectangle {
+    in property <[string]> options;
+    in-out property <int> current-index: 0;
+    callback selected(int);
+    preferred-height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    min-width: 140px;
+    border-radius: 12px;
+    background: M3.surface;
+    border-width: 1px;
+    border-color: ta.has-hover ? M3.on-surface : M3.outline-variant;
+    ta := TouchArea {
+        mouse-cursor: MouseCursor.pointer;
+        clicked => {
+            popup.show();
+        }
+    }
+    Text {
+        x: 16px;
+        width: parent.width - 52px;
+        height: parent.height;
+        text: root.options[root.current-index];
+        color: M3.on-surface;
+        font-size: 14px;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    Icon {
+        d: Ic.chevron;
+        tint: M3.on-surface-variant;
+        x: parent.width - 34px;
+        y: (parent.height - self.height) / 2;
+    }
+    popup := PopupWindow {
+        x: 0px;
+        y: root.height + 4px;
+        width: root.width;
+        height: root.options.length * 44px + 16px;
+        Rectangle {
+            border-radius: 12px;
+            background: M3.surface-high;
+            border-width: 1px;
+            border-color: M3.outline-variant;
+            drop-shadow-blur: 16px;
+            drop-shadow-color: #00000066;
+            drop-shadow-offset-y: 4px;
+            VerticalLayout {
+                padding: 8px;
+                for opt[i] in root.options: Rectangle {
+                    height: 44px;
+                    background: i == root.current-index ? M3.secondary-container : (it.has-hover ? M3.on-surface.with-alpha(0.08) : transparent);
+                    border-radius: 8px;
+                    it := TouchArea {
+                        mouse-cursor: MouseCursor.pointer;
+                        clicked => {
+                            root.current-index = i;
+                            root.selected(i);
+                        }
+                    }
+                    Text {
+                        x: 12px;
+                        width: parent.width - 24px;
+                        text: opt;
+                        color: i == root.current-index ? M3.on-secondary-container : M3.on-surface;
+                        font-size: 14px;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+                }
+            }
+        }
+    }
+}
+
+export component M3Switch inherits Rectangle {
+    in-out property <bool> checked;
+    callback toggled();
+    width: 52px;
+    height: 32px;
+    border-radius: 16px;
+    background: checked ? M3.primary : M3.surface-highest;
+    border-width: checked ? 0px : 2px;
+    border-color: M3.outline;
+    animate background { duration: 150ms; }
+    Rectangle {
+        width: root.checked ? 24px : 16px;
+        height: self.width;
+        x: root.checked ? 24px : 6px;
+        y: (parent.height - self.height) / 2 - (root.checked ? 0px : 2px);
+        border-radius: self.width / 2;
+        background: root.checked ? M3.on-primary : M3.outline;
+        animate x, width { duration: 150ms; }
+    }
+    TouchArea {
+        mouse-cursor: MouseCursor.pointer;
+        clicked => {
+            root.checked = !root.checked;
+            root.toggled();
+        }
+    }
+}
+
+export component Progress inherits Rectangle {
+    in property <float> value;
+    in property <bool> indeterminate: false;
+    property <float> phase: -0.3;
+    height: 6px;
+    border-radius: 3px;
+    background: M3.surface-highest;
+    clip: true;
+    Timer {
+        interval: 16ms;
+        running: root.indeterminate;
+        triggered => {
+            root.phase = root.phase > 1.0 ? -0.3 : root.phase + 0.014;
+        }
+    }
+    Rectangle {
+        x: root.indeterminate ? parent.width * root.phase : 0px;
+        width: root.indeterminate ? parent.width * 0.3 : parent.width * Math.min(Math.max(root.value, 0), 1);
+        height: parent.height;
+        border-radius: 3px;
+        background: M3.primary;
+    }
+}
+
+export component Stepper inherits Rectangle {
+    in-out property <int> value: 1;
+    in property <int> minimum: 1;
+    in property <int> maximum: 1000;
+    in property <int> step: 50;
+    callback edited();
+    preferred-height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    min-width: 260px;
+    max-width: 260px;
+    border-radius: 22px;
+    background: M3.surface;
+    border-width: 1px;
+    border-color: M3.outline-variant;
+    HorizontalLayout {
+        padding: 4px;
+        IconBtn {
+            icon: Ic.minus;
+            size: 36px;
+            clicked => {
+                root.value = Math.max(root.minimum, root.value - root.step);
+                root.edited();
+            }
+        }
+        Text {
+            text: root.value;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            font-size: 14px;
+            color: M3.on-surface;
+            horizontal-stretch: 1;
+        }
+        IconBtn {
+            icon: Ic.add;
+            size: 36px;
+            clicked => {
+                root.value = Math.min(root.maximum, root.value + root.step);
+                root.edited();
+            }
+        }
+    }
+}

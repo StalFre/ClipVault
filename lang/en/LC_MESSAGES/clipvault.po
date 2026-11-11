@@ -1,0 +1,505 @@
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Buscar"
+msgstr "Search"
+
+msgid "Enlace"
+msgstr "Link"
+
+msgid "Descargas"
+msgstr "Downloads"
+
+msgid "Perfiles"
+msgstr "Profiles"
+
+msgid "Ajustes"
+msgstr "Settings"
+
+msgid "En uso"
+msgstr "In use"
+
+msgid "Usar"
+msgstr "Use"
+
+msgid "Cambiar carpeta"
+msgstr "Change folder"
+
+msgid "Resultados"
+msgstr "Results"
+
+msgid "Todo"
+msgstr "All"
+
+msgid "Ninguno"
+msgstr "None"
+
+msgid "Quitar no marcados"
+msgstr "Remove unchecked"
+
+msgid "Vaciar"
+msgstr "Clear"
+
+msgid "Descargar ({})"
+msgstr "Download ({})"
+
+msgid "Descargar"
+msgstr "Download"
+
+msgid "Cola activa"
+msgstr "Active queue"
+
+msgid "Borrar cola"
+msgstr "Clear queue"
+
+msgid "No hay descargas en curso"
+msgstr "No downloads in progress"
+
+msgid "Lo que descargues aparecerá aquí. Arrastra el asa para cambiar la prioridad."
+msgstr "Whatever you download appears here. Drag the handle to change priority."
+
+msgid "Historial"
+msgstr "History"
+
+msgid "Borrar historial"
+msgstr "Clear history"
+
+msgid "Buscar por título…"
+msgstr "Search by title…"
+
+msgid "Todos"
+msgstr "All"
+
+msgid "Completados"
+msgstr "Completed"
+
+msgid "Fallidos"
+msgstr "Failed"
+
+msgid "Sin coincidencias"
+msgstr "No matches"
+
+msgid "El historial está vacío"
+msgstr "History is empty"
+
+msgid "Prueba con otro texto o filtro."
+msgstr "Try another text or filter."
+
+msgid "Aquí verás lo que ya descargaste."
+msgstr "You will see what you already downloaded here."
+
+msgid "Encuentra videos y canciones en YouTube sin pegar enlaces"
+msgstr "Find videos and songs on YouTube without pasting links"
+
+msgid "Nombre de la canción o del video…"
+msgstr "Song or video name…"
+
+msgid "10 resultados"
+msgstr "10 results"
+
+msgid "15 resultados"
+msgstr "15 results"
+
+msgid "25 resultados"
+msgstr "25 results"
+
+msgid "40 resultados"
+msgstr "40 results"
+
+msgid "Busca algo para empezar"
+msgstr "Search something to start"
+
+msgid "Escribe el nombre de una canción o video y pulsa Buscar."
+msgstr "Type a song or video name and press Search."
+
+msgid "Videos sueltos, listas de reproducción o varios enlaces a la vez"
+msgstr "Single videos, playlists or several links at once"
+
+msgid "Un solo video"
+msgstr "Single video"
+
+msgid "Lista de reproducción"
+msgstr "Playlist"
+
+msgid "Varios enlaces"
+msgstr "Several links"
+
+msgid "Extraer"
+msgstr "Extract"
+
+msgid "Un enlace por línea"
+msgstr "One link per line"
+
+msgid "Extraer todos"
+msgstr "Extract all"
+
+msgid "Pega un enlace"
+msgstr "Paste a link"
+
+msgid "Funciona con YouTube y cientos de sitios compatibles con yt-dlp."
+msgstr "Works with YouTube and hundreds of sites supported by yt-dlp."
+
+msgid "Cola en curso e historial"
+msgstr "Running queue and history"
+
+msgid "Calidad y formato de cada descarga"
+msgstr "Quality and format of each download"
+
+msgid "Nuevo perfil"
+msgstr "New profile"
+
+msgid "Descarga"
+msgstr "Download"
+
+msgid "Descargas simultáneas"
+msgstr "Simultaneous downloads"
+
+msgid "Límite de velocidad"
+msgstr "Speed limit"
+
+msgid "Sin límite"
+msgstr "No limit"
+
+msgid "500 KB/s"
+msgstr "500 KB/s"
+
+msgid "1 MB/s"
+msgstr "1 MB/s"
+
+msgid "2 MB/s"
+msgstr "2 MB/s"
+
+msgid "5 MB/s"
+msgstr "5 MB/s"
+
+msgid "Pausas entre descargas"
+msgstr "Pauses between downloads"
+
+msgid "Reduce el riesgo de bloqueos por exceso de peticiones."
+msgstr "Reduces the risk of being blocked for too many requests."
+
+msgid "Desactivadas"
+msgstr "Off"
+
+msgid "Equilibrado"
+msgstr "Balanced"
+
+msgid "Cauteloso"
+msgstr "Careful"
+
+msgid "Red y cuenta"
+msgstr "Network and account"
+
+msgid "Cookies"
+msgstr "Cookies"
+
+msgid "Para videos con restricción de edad o de miembros."
+msgstr "For age-restricted or members-only videos."
+
+msgid "No usar"
+msgstr "Do not use"
+
+msgid "Archivo cookies.txt"
+msgstr "cookies.txt file"
+
+msgid "Desde el navegador"
+msgstr "From the browser"
+
+msgid "Archivo de cookies"
+msgstr "Cookies file"
+
+msgid "Elegir"
+msgstr "Choose"
+
+msgid "Navegador"
+msgstr "Browser"
+
+msgid "Chrome"
+msgstr "Chrome"
+
+msgid "Firefox"
+msgstr "Firefox"
+
+msgid "Edge"
+msgstr "Edge"
+
+msgid "Brave"
+msgstr "Brave"
+
+msgid "Proxy"
+msgstr "Proxy"
+
+msgid "Opcional, por ejemplo http://host:puerto"
+msgstr "Optional, e.g. http://host:port"
+
+msgid "Máximo de elementos al leer una lista"
+msgstr "Maximum items when reading a list"
+
+msgid "Organización"
+msgstr "Organization"
+
+msgid "Carpetas"
+msgstr "Folders"
+
+msgid "Cómo se ordenan los archivos dentro de la carpeta de destino."
+msgstr "How files are arranged inside the destination folder."
+
+msgid "Perfil y lista"
+msgstr "Profile and playlist"
+
+msgid "Por canal / artista"
+msgstr "By channel / artist"
+
+msgid "Perfil y canal"
+msgstr "Profile and channel"
+
+msgid "Sin subcarpetas"
+msgstr "No subfolders"
+
+msgid "Nombre del archivo"
+msgstr "File name"
+
+msgid "Variables: {{title}} {{channel}} {{id}} {{profile}} {{date}}"
+msgstr "Variables: {{title}} {{channel}} {{id}} {{profile}} {{date}}"
+
+msgid "General"
+msgstr "General"
+
+msgid "Idioma"
+msgstr "Language"
+
+msgid "Modo compacto"
+msgstr "Compact mode"
+
+msgid "Menos espacios y botones; se activa solo en ventanas pequeñas."
+msgstr "Less spacing and fewer buttons; turns on by itself in small windows."
+
+msgid "Seguir en la bandeja al cerrar"
+msgstr "Keep running in the tray when closed"
+
+msgid "Así la extensión del navegador siempre encuentra la app."
+msgstr "So the browser extension always finds the app."
+
+msgid "Detectar enlaces copiados"
+msgstr "Detect copied links"
+
+msgid "Ofrece descargar cuando copias un enlace de video."
+msgstr "Offers to download when you copy a video link."
+
+msgid "Notificaciones de Windows"
+msgstr "Windows notifications"
+
+msgid "Procesado"
+msgstr "Processing"
+
+msgid "Quitar patrocinios (SponsorBlock)"
+msgstr "Remove sponsors (SponsorBlock)"
+
+msgid "Recorta patrocinios, intros y outros automáticamente."
+msgstr "Automatically trims sponsors, intros and outros."
+
+msgid "Normalizar volumen"
+msgstr "Normalize volume"
+
+msgid "Iguala el volumen entre canciones (EBU R128)."
+msgstr "Evens out volume between songs (EBU R128)."
+
+msgid "Incrustar miniatura y metadatos"
+msgstr "Embed thumbnail and metadata"
+
+msgid "Descargar subtítulos"
+msgstr "Download subtitles"
+
+msgid "Se guardan como .srt junto al video."
+msgstr "Saved as .srt next to the video."
+
+msgid "Idioma de subtítulos"
+msgstr "Subtitle language"
+
+msgid "Inglés"
+msgstr "English"
+
+msgid "Español o inglés"
+msgstr "Spanish or English"
+
+msgid "Inglés o español"
+msgstr "English or Spanish"
+
+msgid "Portugués"
+msgstr "Portuguese"
+
+msgid "Francés"
+msgstr "French"
+
+msgid "Alemán"
+msgstr "German"
+
+msgid "Italiano"
+msgstr "Italian"
+
+msgid "Japonés"
+msgstr "Japanese"
+
+msgid "Coreano"
+msgstr "Korean"
+
+msgid "Chino"
+msgstr "Chinese"
+
+msgid "Herramientas"
+msgstr "Tools"
+
+msgid "yt-dlp"
+msgstr "yt-dlp"
+
+msgid "Versión {}"
+msgstr "Version {}"
+
+msgid "No instalado"
+msgstr "Not installed"
+
+msgid "Buscar actualizaciones"
+msgstr "Check for updates"
+
+msgid "ffmpeg"
+msgstr "ffmpeg"
+
+msgid "Actualizar al iniciar"
+msgstr "Update on startup"
+
+msgid "Comprueba yt-dlp y ffmpeg cada vez que abres la aplicación."
+msgstr "Checks yt-dlp and ffmpeg every time you open the app."
+
+msgid "Acerca de"
+msgstr "About"
+
+msgid "ClipVault {} · por StalFre"
+msgstr "ClipVault {} · by StalFre"
+
+msgid "Actualizaciones de ClipVault"
+msgstr "ClipVault updates"
+
+msgid "Buscar actualización"
+msgstr "Check for update"
+
+msgid "Instalar"
+msgstr "Install"
+
+msgid "Interfaz nativa en Rust y Slint sobre yt-dlp y ffmpeg."
+msgstr "Native Rust and Slint interface on top of yt-dlp and ffmpeg."
+
+msgid "Abrir carpeta de registros"
+msgstr "Open logs folder"
+
+msgid "Descarga, red, procesado y herramientas"
+msgstr "Download, network, processing and tools"
+
+msgid "La extensión del navegador envió este enlace. ¿Cómo quieres leerlo?"
+msgstr "This link was sent to the app. How do you want to read it?"
+
+msgid "Cancelar"
+msgstr "Cancel"
+
+msgid "Lista"
+msgstr "Playlist"
+
+msgid "Un video"
+msgstr "One video"
+
+msgid "Nombre del perfil"
+msgstr "Profile name"
+
+msgid "Video"
+msgstr "Video"
+
+msgid "Audio"
+msgstr "Audio"
+
+msgid "Mejor calidad"
+msgstr "Best quality"
+
+msgid "Hasta 2160p"
+msgstr "Up to 2160p"
+
+msgid "Hasta 1440p"
+msgstr "Up to 1440p"
+
+msgid "Hasta 1080p"
+msgstr "Up to 1080p"
+
+msgid "Hasta 720p"
+msgstr "Up to 720p"
+
+msgid "Hasta 480p"
+msgstr "Up to 480p"
+
+msgid "Hasta 360p"
+msgstr "Up to 360p"
+
+msgid "Formatos nativos"
+msgstr "Native formats"
+
+msgid "MP4 / H.264 (Smart TV)"
+msgstr "MP4 / H.264 (Smart TV)"
+
+msgid "WAV (sin pérdida)"
+msgstr "WAV (lossless)"
+
+msgid "FLAC (sin pérdida)"
+msgstr "FLAC (lossless)"
+
+msgid "Opus original"
+msgstr "Original Opus"
+
+msgid "Guardar"
+msgstr "Save"
+
+msgid "Editar etiquetas"
+msgstr "Edit tags"
+
+msgid "Título"
+msgstr "Title"
+
+msgid "Artista"
+msgstr "Artist"
+
+msgid "Álbum"
+msgstr "Album"
+
+msgid "Sin portada nueva"
+msgstr "No new cover"
+
+msgid "Elegir portada"
+msgstr "Choose cover"
+
+msgid "Guardando…"
+msgstr "Saving…"
+
+msgid "Recortar video"
+msgstr "Trim video"
+
+msgid "Desde 0:00"
+msgstr "From 0:00"
+
+msgid "Hasta fin"
+msgstr "To end"
+
+msgid "Fotograma inicio"
+msgstr "Start frame"
+
+msgid "Fotograma final"
+msgstr "End frame"
+
+msgid "Reproducir"
+msgstr "Play"
+
+msgid "Quitar recorte"
+msgstr "Remove trim"
+
+msgid "Aplicar"
+msgstr "Apply"
+
+msgid "ClipVault"
+msgstr "ClipVault"

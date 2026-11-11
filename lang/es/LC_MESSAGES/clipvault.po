@@ -1,0 +1,505 @@
+msgid ""
+msgstr ""
+"Language: es\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Buscar"
+msgstr ""
+
+msgid "Enlace"
+msgstr ""
+
+msgid "Descargas"
+msgstr ""
+
+msgid "Perfiles"
+msgstr ""
+
+msgid "Ajustes"
+msgstr ""
+
+msgid "En uso"
+msgstr ""
+
+msgid "Usar"
+msgstr ""
+
+msgid "Cambiar carpeta"
+msgstr ""
+
+msgid "Resultados"
+msgstr ""
+
+msgid "Todo"
+msgstr ""
+
+msgid "Ninguno"
+msgstr ""
+
+msgid "Quitar no marcados"
+msgstr ""
+
+msgid "Vaciar"
+msgstr ""
+
+msgid "Descargar ({})"
+msgstr ""
+
+msgid "Descargar"
+msgstr ""
+
+msgid "Cola activa"
+msgstr ""
+
+msgid "Borrar cola"
+msgstr ""
+
+msgid "No hay descargas en curso"
+msgstr ""
+
+msgid "Lo que descargues aparecerá aquí. Arrastra el asa para cambiar la prioridad."
+msgstr ""
+
+msgid "Historial"
+msgstr ""
+
+msgid "Borrar historial"
+msgstr ""
+
+msgid "Buscar por título…"
+msgstr ""
+
+msgid "Todos"
+msgstr ""
+
+msgid "Completados"
+msgstr ""
+
+msgid "Fallidos"
+msgstr ""
+
+msgid "Sin coincidencias"
+msgstr ""
+
+msgid "El historial está vacío"
+msgstr ""
+
+msgid "Prueba con otro texto o filtro."
+msgstr ""
+
+msgid "Aquí verás lo que ya descargaste."
+msgstr ""
+
+msgid "Encuentra videos y canciones en YouTube sin pegar enlaces"
+msgstr ""
+
+msgid "Nombre de la canción o del video…"
+msgstr ""
+
+msgid "10 resultados"
+msgstr ""
+
+msgid "15 resultados"
+msgstr ""
+
+msgid "25 resultados"
+msgstr ""
+
+msgid "40 resultados"
+msgstr ""
+
+msgid "Busca algo para empezar"
+msgstr ""
+
+msgid "Escribe el nombre de una canción o video y pulsa Buscar."
+msgstr ""
+
+msgid "Videos sueltos, listas de reproducción o varios enlaces a la vez"
+msgstr ""
+
+msgid "Un solo video"
+msgstr ""
+
+msgid "Lista de reproducción"
+msgstr ""
+
+msgid "Varios enlaces"
+msgstr ""
+
+msgid "Extraer"
+msgstr ""
+
+msgid "Un enlace por línea"
+msgstr ""
+
+msgid "Extraer todos"
+msgstr ""
+
+msgid "Pega un enlace"
+msgstr ""
+
+msgid "Funciona con YouTube y cientos de sitios compatibles con yt-dlp."
+msgstr ""
+
+msgid "Cola en curso e historial"
+msgstr ""
+
+msgid "Calidad y formato de cada descarga"
+msgstr ""
+
+msgid "Nuevo perfil"
+msgstr ""
+
+msgid "Descarga"
+msgstr ""
+
+msgid "Descargas simultáneas"
+msgstr ""
+
+msgid "Límite de velocidad"
+msgstr ""
+
+msgid "Sin límite"
+msgstr ""
+
+msgid "500 KB/s"
+msgstr ""
+
+msgid "1 MB/s"
+msgstr ""
+
+msgid "2 MB/s"
+msgstr ""
+
+msgid "5 MB/s"
+msgstr ""
+
+msgid "Pausas entre descargas"
+msgstr ""
+
+msgid "Reduce el riesgo de bloqueos por exceso de peticiones."
+msgstr ""
+
+msgid "Desactivadas"
+msgstr ""
+
+msgid "Equilibrado"
+msgstr ""
+
+msgid "Cauteloso"
+msgstr ""
+
+msgid "Red y cuenta"
+msgstr ""
+
+msgid "Cookies"
+msgstr ""
+
+msgid "Para videos con restricción de edad o de miembros."
+msgstr ""
+
+msgid "No usar"
+msgstr ""
+
+msgid "Archivo cookies.txt"
+msgstr ""
+
+msgid "Desde el navegador"
+msgstr ""
+
+msgid "Archivo de cookies"
+msgstr ""
+
+msgid "Elegir"
+msgstr ""
+
+msgid "Navegador"
+msgstr ""
+
+msgid "Chrome"
+msgstr ""
+
+msgid "Firefox"
+msgstr ""
+
+msgid "Edge"
+msgstr ""
+
+msgid "Brave"
+msgstr ""
+
+msgid "Proxy"
+msgstr ""
+
+msgid "Opcional, por ejemplo http://host:puerto"
+msgstr ""
+
+msgid "Máximo de elementos al leer una lista"
+msgstr ""
+
+msgid "Organización"
+msgstr ""
+
+msgid "Carpetas"
+msgstr ""
+
+msgid "Cómo se ordenan los archivos dentro de la carpeta de destino."
+msgstr ""
+
+msgid "Perfil y lista"
+msgstr ""
+
+msgid "Por canal / artista"
+msgstr ""
+
+msgid "Perfil y canal"
+msgstr ""
+
+msgid "Sin subcarpetas"
+msgstr ""
+
+msgid "Nombre del archivo"
+msgstr ""
+
+msgid "Variables: {{title}} {{channel}} {{id}} {{profile}} {{date}}"
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Idioma"
+msgstr ""
+
+msgid "Modo compacto"
+msgstr ""
+
+msgid "Menos espacios y botones; se activa solo en ventanas pequeñas."
+msgstr ""
+
+msgid "Seguir en la bandeja al cerrar"
+msgstr ""
+
+msgid "Así la extensión del navegador siempre encuentra la app."
+msgstr ""
+
+msgid "Detectar enlaces copiados"
+msgstr ""
+
+msgid "Ofrece descargar cuando copias un enlace de video."
+msgstr ""
+
+msgid "Notificaciones de Windows"
+msgstr ""
+
+msgid "Procesado"
+msgstr ""
+
+msgid "Quitar patrocinios (SponsorBlock)"
+msgstr ""
+
+msgid "Recorta patrocinios, intros y outros automáticamente."
+msgstr ""
+
+msgid "Normalizar volumen"
+msgstr ""
+
+msgid "Iguala el volumen entre canciones (EBU R128)."
+msgstr ""
+
+msgid "Incrustar miniatura y metadatos"
+msgstr ""
+
+msgid "Descargar subtítulos"
+msgstr ""
+
+msgid "Se guardan como .srt junto al video."
+msgstr ""
+
+msgid "Idioma de subtítulos"
+msgstr ""
+
+msgid "Inglés"
+msgstr ""
+
+msgid "Español o inglés"
+msgstr ""
+
+msgid "Inglés o español"
+msgstr ""
+
+msgid "Portugués"
+msgstr ""
+
+msgid "Francés"
+msgstr ""
+
+msgid "Alemán"
+msgstr ""
+
+msgid "Italiano"
+msgstr ""
+
+msgid "Japonés"
+msgstr ""
+
+msgid "Coreano"
+msgstr ""
+
+msgid "Chino"
+msgstr ""
+
+msgid "Herramientas"
+msgstr ""
+
+msgid "yt-dlp"
+msgstr ""
+
+msgid "Versión {}"
+msgstr ""
+
+msgid "No instalado"
+msgstr ""
+
+msgid "Buscar actualizaciones"
+msgstr ""
+
+msgid "ffmpeg"
+msgstr ""
+
+msgid "Actualizar al iniciar"
+msgstr ""
+
+msgid "Comprueba yt-dlp y ffmpeg cada vez que abres la aplicación."
+msgstr ""
+
+msgid "Acerca de"
+msgstr ""
+
+msgid "ClipVault {} · por StalFre"
+msgstr ""
+
+msgid "Actualizaciones de ClipVault"
+msgstr ""
+
+msgid "Buscar actualización"
+msgstr ""
+
+msgid "Instalar"
+msgstr ""
+
+msgid "Interfaz nativa en Rust y Slint sobre yt-dlp y ffmpeg."
+msgstr ""
+
+msgid "Abrir carpeta de registros"
+msgstr ""
+
+msgid "Descarga, red, procesado y herramientas"
+msgstr ""
+
+msgid "La extensión del navegador envió este enlace. ¿Cómo quieres leerlo?"
+msgstr ""
+
+msgid "Cancelar"
+msgstr ""
+
+msgid "Lista"
+msgstr ""
+
+msgid "Un video"
+msgstr ""
+
+msgid "Nombre del perfil"
+msgstr ""
+
+msgid "Video"
+msgstr ""
+
+msgid "Audio"
+msgstr ""
+
+msgid "Mejor calidad"
+msgstr ""
+
+msgid "Hasta 2160p"
+msgstr ""
+
+msgid "Hasta 1440p"
+msgstr ""
+
+msgid "Hasta 1080p"
+msgstr ""
+
+msgid "Hasta 720p"
+msgstr ""
+
+msgid "Hasta 480p"
+msgstr ""
+
+msgid "Hasta 360p"
+msgstr ""
+
+msgid "Formatos nativos"
+msgstr ""
+
+msgid "MP4 / H.264 (Smart TV)"
+msgstr ""
+
+msgid "WAV (sin pérdida)"
+msgstr ""
+
+msgid "FLAC (sin pérdida)"
+msgstr ""
+
+msgid "Opus original"
+msgstr ""
+
+msgid "Guardar"
+msgstr ""
+
+msgid "Editar etiquetas"
+msgstr ""
+
+msgid "Título"
+msgstr ""
+
+msgid "Artista"
+msgstr ""
+
+msgid "Álbum"
+msgstr ""
+
+msgid "Sin portada nueva"
+msgstr ""
+
+msgid "Elegir portada"
+msgstr ""
+
+msgid "Guardando…"
+msgstr ""
+
+msgid "Recortar video"
+msgstr ""
+
+msgid "Desde 0:00"
+msgstr ""
+
+msgid "Hasta fin"
+msgstr ""
+
+msgid "Fotograma inicio"
+msgstr ""
+
+msgid "Fotograma final"
+msgstr ""
+
+msgid "Reproducir"
+msgstr ""
+
+msgid "Quitar recorte"
+msgstr ""
+
+msgid "Aplicar"
+msgstr ""
+
+msgid "ClipVault"
+msgstr ""

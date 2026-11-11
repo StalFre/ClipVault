@@ -1,0 +1,35 @@
+[package]
+name = "clipvault"
+version = "2.0.0"
+edition = "2021"
+build = "build.rs"
+
+[dependencies]
+slint = { version = "1.9", default-features = false, features = ["std", "backend-winit", "renderer-femtovg", "compat-1-2", "raw-window-handle-06"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ureq = { version = "2", features = ["json"] }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+tiny_http = "0.12"
+rfd = { version = "0.15", default-features = false }
+arboard = { version = "3", default-features = false }
+tray-icon = "0.26"
+raw-window-handle = "0.6"
+log = { version = "0.4", features = ["std"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+
+[target.'cfg(windows)'.dependencies]
+tauri-winrt-notification = "0.8"
+windows-core = "0.62"
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_UI_Shell", "Win32_System_Com", "Win32_System_Ole", "Win32_System_Com_StructuredStorage", "Win32_System_Memory", "Win32_System_SystemServices", "Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "0.59", features = ["Win32_Storage_FileSystem", "Win32_Foundation"] }
+
+[build-dependencies]
+slint-build = "1.9"
+winresource = "0.1"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+strip = true
