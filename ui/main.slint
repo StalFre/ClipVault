@@ -1738,19 +1738,22 @@ component TrimDialog inherits Rectangle {
             color: M3.on-surface-variant;
             overflow: elide;
         }
-        TextField {
+        HorizontalLayout {
             x: 24px;
             y: 322px;
-            width: (parent.width - 58px) / 2;
-            text <=> Backend.trim-from;
-            placeholder: @tr("Desde 0:00");
-        }
-        TextField {
-            x: 34px + (parent.width - 58px) / 2;
-            y: 322px;
-            width: (parent.width - 58px) / 2;
-            text <=> Backend.trim-to;
-            placeholder: @tr("Hasta fin");
+            width: parent.width - 48px;
+            height: 44px;
+            spacing: 10px;
+            TextField {
+                text <=> Backend.trim-from;
+                placeholder: @tr("Desde 0:00");
+                horizontal-stretch: 1;
+            }
+            TextField {
+                text <=> Backend.trim-to;
+                placeholder: @tr("Hasta fin");
+                horizontal-stretch: 1;
+            }
         }
         HorizontalLayout {
             x: 24px;
